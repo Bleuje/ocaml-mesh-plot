@@ -13,7 +13,7 @@ There are also two drawing styles : filled triangles or not.
 - Comments in the code contain additional information to use the plot function.
 
 ## Examples of results
-Examples of rendered meshes from the TOSCA dataset [^1] :
+Examples of rendered meshes from the TOSCA dataset[^1] :
 
 Full style :
 ![image](https://raw.githubusercontent.com/Bleuje/ocaml-mesh-plot/master/pictures/cat1_ocaml.jpg)
@@ -27,5 +27,6 @@ Edge style :
 - Colors defined by user
 - Compilation
 
-### Notes
+## Notes
+
 [^1]: [source : Non-rigid world here](http://tosca.cs.technion.ac.il/book/resources_data.html)
