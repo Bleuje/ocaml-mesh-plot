@@ -19,13 +19,16 @@ There are also two drawing styles : filled triangles or not.
 Examples of rendered meshes from the [Non-rigid world dataset here](http://tosca.cs.technion.ac.il/book/resources_data.html) :
 
 Full style :
+
 ![image](https://raw.githubusercontent.com/Bleuje/ocaml-mesh-plot/master/pictures/cat1_ocaml.jpg)
 ![image](https://raw.githubusercontent.com/Bleuje/ocaml-mesh-plot/master/pictures/centaur1_ocaml.jpg)
 
 Edge style :
+
 ![image](https://raw.githubusercontent.com/Bleuje/ocaml-mesh-plot/master/pictures/centaur1_edge_ocaml.jpg)
 
 Cat + paraboloid :
+
 ![image](https://raw.githubusercontent.com/Bleuje/ocaml-mesh-plot/master/pictures/catparaboloid.jpg)
 
 ## Possible future improvement
