@@ -13,15 +13,19 @@ There are also two drawing styles : filled triangles or not.
 - Comments in the code contain additional information to use the plot function.
 
 ## Examples of results
-Examples of rendered meshes from the TOSCA dataset :
+Examples of rendered meshes from the TOSCA dataset [^1] :
 
+Full style :
 ![image](https://raw.githubusercontent.com/Bleuje/ocaml-mesh-plot/master/pictures/cat1_ocaml.jpg)
 ![image](https://raw.githubusercontent.com/Bleuje/ocaml-mesh-plot/master/pictures/centaur1_ocaml.jpg)
 
+Edge style :
 ![image](https://raw.githubusercontent.com/Bleuje/ocaml-mesh-plot/master/pictures/centaur1_edge_ocaml.jpg)
 
 ## Possible future improvement
 - Increase rendering speed with another library
 - Colors defined by user
-- Use more types or object oriented programming
 - Compilation
+
+### Notes
+[^1]: http://tosca.cs.technion.ac.il/book/resources_data.html
