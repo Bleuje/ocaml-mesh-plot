@@ -28,4 +28,4 @@ Edge style :
 - Compilation
 
 ### Notes
-[^1]: http://tosca.cs.technion.ac.il/book/resources_data.html
+[^1]: [source : Non-rigid world here](http://tosca.cs.technion.ac.il/book/resources_data.html)
