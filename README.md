@@ -6,13 +6,13 @@ The code is contained in the file **3dplot.ml** and **mesh3dtools.ml**, and used
 ## How to use the code
 - To use the plot functions in *3dplot.ml*, use *"#use "3dplot.ml";;"*.
 
-- *mesh3dtools.ml* contains all the mesh related things independant from plot.
+- **mesh3dtools.ml** contains all the mesh related things independant from plot.
 
 - You can choose the positions of the camera. The camera has 3 more parameters : angles **phi** and **theta** (spherical coordinates), and a *"zoom" factor* **zoomfactor**.
 
 - **loadMesh filePath** loads an uncolored triangle-based OFF format mesh from the string *filePath*.
 
-- **loadMesh mesh filePath** writes *mesh* in OFF format to *filePath*.
+- **writeMesh mesh filePath** writes *mesh* in OFF format to *filePath*.
 
 - **plotMesh mesh settings** plots *mesh* given its plot *settings*. The settings consist in color (RGB or HSV), drawing style (Full or Edge), window size, light direction, camera settings, and the number of printed triangles per flush.
 
