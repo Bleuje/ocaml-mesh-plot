@@ -1,4 +1,5 @@
-#use "3dplot.ml"
+#use "plot3d.ml";;
+#use "mesh3dtools.ml";;
 (***************************************************)
 (******************** MAIN *************************)
 (***************************************************)
@@ -16,25 +17,28 @@ let myStyle = Full;;
 let f x y = 0.01*.(x*.x +. y*.y) +. 50.0;;
 
 (*** generating a mesh from the previous function ***)
-let myMesh = meshOfHeightMapRect f (-.50.0,100.0) (-20.0,55.0) 1.0;;
+let myMesh = meshOfHeightMapRect f (-.50.0,100.0) (-20.0,155.0) 1.0;;
 let (n,m) = (myMesh.nVert,myMesh.nTria) in
 print_int n; print_string " vertices, ";
 print_int m; print_endline " triangles.";;
 
 (*** generating a mesh from the OFF file ***)
-let myMesh2 = loadMesh filePath;;
+let myMesh2 = loadOffMesh filePath;;
 let (n,m) = (myMesh2.nVert,myMesh2.nTria) in
 print_int n; print_string " vertices, ";
 print_int m; print_endline " triangles.";;
 
-(*** putting the two meshes together ***)
-let mySecondMesh = concat myMesh myMesh2;;
+(*** deformation function ***)
+let g x y z = (1.5*.x,y,2.0*.z);;
+
+(*** putting meshes together ***)
+let myFullMesh = concatMeshList [myMesh; myMesh2; move myMesh2 (50.0,0.0,0.0); deformedMesh (move myMesh2 (25.0,50.0,0.0)) g];;
 
 (*** plot ***)
 print_string "Plot starts... ";;
 Graphics.open_graph windowSize;;
 Graphics.auto_synchronize false;;
-plotMesh mySecondMesh myCameraView lightDirection myStyle;;
+plotMesh myFullMesh myCameraView lightDirection myStyle;;
 print_endline "done.";;
 
 (******* Just to keep the graphics window open ******)
