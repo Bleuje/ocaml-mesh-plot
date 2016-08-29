@@ -4,7 +4,68 @@
         2016
         Etienne JACOB
 =================================================*)
-#use "plot3d.ml";;
+type point3D = float*float*float;;
+type mesh = { nVert : int; nTria : int; positions : float array array; triangles : int array array; };;
+
+(*************************************************************)
+(*** MESH INPUT/OUTPUT ***************************************)
+
+(* Loads a triangle based OFF format mesh in arrays *)
+let loadOffMesh filePath =
+    let input_file = Scanf.Scanning.from_file filePath in
+    Scanf.bscanf input_file "%s\n" (fun x -> ());
+        let (nVert,nTria,_) = Scanf.bscanf input_file "%d %d %d " (fun x y z -> (x,y,z)) in
+        let positions = Array.make_matrix nVert 3 0.0
+        and triangles = Array.make_matrix nTria 3 0 in
+            for i=0 to nVert - 1 do
+                let (x_,y_,z_) = Scanf.bscanf input_file "%f %f %f " (fun x y z -> (x,y,z)) in
+                    positions.(i).(0) <- x_;
+                    positions.(i).(1) <- y_;
+                    positions.(i).(2) <- z_;
+            done;
+            for i=0 to nTria - 1 do
+                let (_,a_,b_,c_) = Scanf.bscanf input_file "%d %d %d %d " (fun n x y z -> (n,x,y,z)) in
+                    triangles.(i).(0) <- a_;
+                    triangles.(i).(1) <- b_;
+                    triangles.(i).(2) <- c_;
+            done;
+            {   nVert = nVert;
+                nTria = nTria;
+                positions = positions;
+                triangles = triangles; };;
+
+(* Loads a triangle based OFF format mesh in arrays *)
+let writeOffMesh mesh filePath =
+    let output_file = open_out filePath in
+    Printf.fprintf output_file "%s\n" "OFF";
+    Printf.fprintf output_file "%d %d 0\n" mesh.nVert mesh.nTria;
+    for i=0 to mesh.nVert - 1 do
+        Printf.fprintf output_file "%f %f %f\n" mesh.positions.(i).(0) mesh.positions.(i).(1) mesh.positions.(i).(2);
+    done;
+    for i=0 to mesh.nTria - 1 do
+        Printf.fprintf output_file "3 %d %d %d\n" mesh.triangles.(i).(0) mesh.triangles.(i).(1) mesh.triangles.(i).(2);
+    done;
+    close_out output_file;;
+
+(*************************************************************)
+(*** SIMPLE FUNCTIONS *****************************************)
+
+(*** copy ***)
+let copyMesh mesh =
+    let (n,m) = (mesh.nVert,mesh.nTria) in
+        let (positions,triangles) = (Array.make_matrix n 3 0.0,Array.make_matrix m 3 0) in
+            for i=0 to n-1 do
+                for j=0 to 2 do
+                    positions.(i).(j) <- mesh.positions.(i).(j);
+                done
+            done;
+            for i=0 to m-1 do
+                for j=0 to 2 do
+                    triangles.(i).(j) <- mesh.triangles.(i).(j);
+                done
+            done;
+            {nVert = n; nTria = m; positions = positions; triangles = triangles; } ;;
+            
 
 (*** mesh concatenation ***)
 let concatMeshList (l : mesh list) =
@@ -45,7 +106,8 @@ let concatMeshList (l : mesh list) =
         done;
         {nVert = nVert; nTria = nTria; positions = positions; triangles = triangles; } ;;
 
-let move mesh ((x,y,z) : point3D) =
+(*** Same mesh translated by a 3d vector ***)
+let movedMesh mesh ((x,y,z) : point3D) =
     let positions = Array.make_matrix mesh.nVert 3 0.0
     and triangles = Array.make_matrix mesh.nTria 3 0 in
         for i=0 to mesh.nVert-1 do
@@ -58,6 +120,7 @@ let move mesh ((x,y,z) : point3D) =
         done;
         {nVert = mesh.nVert; nTria = mesh.nTria; positions = positions; triangles = triangles; } ;;
 
+(*** new mesh with a function applied to vertex positions ***)
 let deformedMesh mesh f =
     let positions = Array.make_matrix mesh.nVert 3 0.0
     and triangles = Array.make_matrix mesh.nTria 3 0 in
@@ -71,3 +134,48 @@ let deformedMesh mesh f =
             triangles.(i) <- mesh.triangles.(i);
         done;
         {nVert = mesh.nVert; nTria = mesh.nTria; positions = positions; triangles = triangles; } ;;
+
+(*************************************************************)
+(*** MESH GENERATION *****************************************)
+
+(*** creates a mesh from a R^2 -> R function,
+on a rectangle domain with borders parallel to x or y axis ***)
+let meshOfHeightMapRect f ((xmin,xmax) : float*float) ((ymin,ymax) : float*float) (step : float) =
+    let n = int_of_float(ceil((xmax-.xmin)/.step))
+    and m = int_of_float(ceil((ymax-.ymin)/.step)) in
+        let positions = Array.make_matrix ((n+1)*(m+1)) 3 0.0
+        and triangles = Array.make_matrix (n*m*2) 3 0
+        and indexOfPos = Array.make_matrix (n+1) (m+1) 0 in
+            let curx = ref xmin
+            and index = ref 0
+            and curi = ref 0
+            and curj = ref 0 in
+            while (!curx <= xmax) do
+                let cury = ref ymin in
+                curj := 0;
+                while (!cury <= ymax) do
+                    positions.(!index).(0) <- !curx;
+                    positions.(!index).(1) <- !cury;
+                    positions.(!index).(2) <- f (!curx) (!cury);
+                    indexOfPos.(!curi).(!curj) <- !index;
+                    cury := step +. !cury;
+                    curj := 1 + !curj;
+                    index := !index + 1;
+                done;
+                curx := step +. !curx;
+                curi := 1 + !curi;
+            done;
+            let nVert = !index in
+            index := 0;
+            for i=0 to !curi - 2 do
+                for j=0 to !curj - 2 do
+                    for t=0 to 1 do
+                        triangles.(!index*2 + t).(0) <- indexOfPos.(i+t).(j+t);
+                        triangles.(!index*2 + t).(1) <-  indexOfPos.(i+1-t).(j+t);
+                        triangles.(!index*2 + t).(2) <-  indexOfPos.(i+t).(j+1-t);
+                    done;
+                    index := !index + 1;
+                done
+            done;
+            let nTria = !index*2 in
+            {nVert = nVert; nTria = nTria; positions = positions; triangles = triangles; };;
