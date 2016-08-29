@@ -4,16 +4,19 @@ It uses the standard OCaml graphics library (it's slow).
 The code is contained in the file **3dplot.ml** and **mesh3dtools.ml**, and used in **main.ml** on examples.
 
 ## How to use the code
-- to use the functions in *3dplot.ml*, use *"#use "3dplot.ml";;"* (same for *mesh3dtools.ml*).
+- To use the plot functions in *3dplot.ml*, use *"#use "3dplot.ml";;"*.
 
-- The camera is located at position (0,0,0) and you can define the position of the mesh. The camera has 3 parameters : angles Phi and Theta, and a "zoom" factor.
+- *mesh3dtools.ml* contains all the mesh related things independant from plot.
 
-- *loadMesh* loads an uncolored triangle-based OFF format mesh given the file path.
+- You can choose the positions of the camera. The camera has 3 more parameters : angles *Phi* and *Theta*, and a *"zoom" factor*.
 
-- *plotMesh* plots a mesh given its array description, the camera parameters and the light direction.
-There are also two drawing styles : filled triangles or not.
+- *loadMesh filePath* loads an uncolored triangle-based OFF format mesh from the string *filePath*.
 
-- Comments in the code contain additional information to use the plot function.
+- *loadMesh mesh filePath* writes *mesh* in OFF format to *filePath*.
+
+- *plotMesh mesh settings* plots *mesh* given its plot *settings*. The settings consist in color (RGB or HSV), drawing style (Full or Edge), window size, light direction, camera settings, and the number of printed triangles per flush.  
+
+- Comments in the code contain additional information on how to use the plot function.
 
 ## Examples of results
 Examples of rendered meshes from the [Non-rigid world dataset here](http://tosca.cs.technion.ac.il/book/resources_data.html) :
@@ -38,7 +41,5 @@ Edge style :
 ![image](https://raw.githubusercontent.com/Bleuje/ocaml-mesh-plot/master/pictures/catfamily.jpg)
 
 ## Possible future improvement
-- Colors defined by user
-- Function to write OFF files
 - More mesh processing
 - Increase rendering speed with another library
