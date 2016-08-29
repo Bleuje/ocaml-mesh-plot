@@ -32,9 +32,10 @@ Edge style :
 
 ## Some tools
 **mesh3dtools.ml** has some functions to create meshes, modify meshes or put them together :
-- *move mesh (x,y,z)* gives a new mesh after a translation (given by the vector (x,y,z)) to mesh.
-- *deformedMesh mesh g* applies function g to vertices positions and returns a new mesh.
-- *concatMeshList l* returns a new mesh that contains the meshes in the mesh list l.
+- *copyMesh mesh* returns a copy of *mesh*.
+- *movedMesh mesh (x,y,z)* returns a new mesh after a translation (given by the vector (x,y,z)) to mesh.
+- *deformedMesh mesh g* applies function *g* to vertices positions of *mesh* to return a new mesh.
+- *concatMeshList l* returns a new mesh that contains the meshes in the mesh list *l*.
 - *meshOfHeightMapRect f (xmin,xmax) (ymin,ymax) step* creates a mesh from a R^2 -> R function (*f*),
 on a rectangle domain with borders parallel to x or y axis (boundaries are given by *xmin*, *xmax*, *ymin*, *ymax*, and the discretization is done with the parameter step).
 
