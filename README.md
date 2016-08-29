@@ -53,7 +53,7 @@ Same with noise on a cat, different angle and color :
 
 Centaur with a saturation gradient based on vertex height :
 
-![image](https://raw.githubusercontent.com/Bleuje/ocaml-mesh-plot/master/pictures/centaurgradientheight.jpg.jpg)
+![image](https://raw.githubusercontent.com/Bleuje/ocaml-mesh-plot/master/pictures/centaurgradientheight.jpg)
 
 ## Known flaws
 - Slow (but I think that the fact it uses the standard library is nice, and the colors are nice and worth additional computation time)
