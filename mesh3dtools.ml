@@ -5,7 +5,14 @@
         Etienne JACOB
 =================================================*)
 type point3D = float*float*float;;
-type mesh = { nVert : int; nTria : int; positions : float array array; triangles : int array array; };;
+
+type gradientStyle = Hue of float*float | Value of float*float | Saturation of float*float;;
+
+type rgb_color = float*float*float;;
+
+type colorStyle = Outside | VertexValue of rgb_color array;;
+
+type mesh = { nVert : int; nTria : int; positions : float array array; triangles : int array array; mutable colorstyle : colorStyle; };;
 
 (*************************************************************)
 (*** MESH INPUT/OUTPUT ***************************************)
@@ -32,7 +39,8 @@ let loadOffMesh filePath =
             {   nVert = nVert;
                 nTria = nTria;
                 positions = positions;
-                triangles = triangles; };;
+                triangles = triangles;
+                colorstyle = Outside; };;
 
 (* Loads a triangle based OFF format mesh in arrays *)
 let writeOffMesh mesh filePath =
@@ -64,7 +72,7 @@ let copyMesh mesh =
                     triangles.(i).(j) <- mesh.triangles.(i).(j);
                 done
             done;
-            {nVert = n; nTria = m; positions = positions; triangles = triangles; } ;;
+            {nVert = n; nTria = m; positions = positions; triangles = triangles; colorstyle = Outside; } ;;
             
 
 (*** mesh concatenation ***)
@@ -104,7 +112,7 @@ let concatMeshList (l : mesh list) =
                 done;
                 curl := List.tl (!curl); 
         done;
-        {nVert = nVert; nTria = nTria; positions = positions; triangles = triangles; } ;;
+        {nVert = nVert; nTria = nTria; positions = positions; triangles = triangles; colorstyle = Outside; } ;;
 
 (*** Same mesh translated by a 3d vector ***)
 let movedMesh mesh ((x,y,z) : point3D) =
@@ -118,7 +126,7 @@ let movedMesh mesh ((x,y,z) : point3D) =
         for i=0 to mesh.nTria-1 do
             triangles.(i) <- mesh.triangles.(i);
         done;
-        {nVert = mesh.nVert; nTria = mesh.nTria; positions = positions; triangles = triangles; } ;;
+        {nVert = mesh.nVert; nTria = mesh.nTria; positions = positions; triangles = triangles; colorstyle = Outside; } ;;
 
 (*** new mesh with a function applied to vertex positions ***)
 let deformedMesh mesh f =
@@ -133,7 +141,7 @@ let deformedMesh mesh f =
         for i=0 to mesh.nTria-1 do
             triangles.(i) <- mesh.triangles.(i);
         done;
-        {nVert = mesh.nVert; nTria = mesh.nTria; positions = positions; triangles = triangles; } ;;
+        {nVert = mesh.nVert; nTria = mesh.nTria; positions = positions; triangles = triangles; colorstyle = Outside; } ;;
 
 (*************************************************************)
 (*** MESH GENERATION *****************************************)
@@ -178,4 +186,20 @@ let meshOfHeightMapRect f ((xmin,xmax) : float*float) ((ymin,ymax) : float*float
                 done
             done;
             let nTria = !index*2 in
-            {nVert = nVert; nTria = nTria; positions = positions; triangles = triangles; };;
+            {nVert = nVert; nTria = nTria; positions = positions; triangles = triangles; colorstyle = Outside; };;
+
+(*************************************************************)
+(*** VALUES ON VERTICES *****************************************)
+
+(* Same value on all vertices *)
+let valueConstant mesh (constant : float) =
+    Array.make (mesh.nVert) constant;;
+
+(* Height *)
+let valueHeight mesh =
+    let result = Array.make (mesh.nVert) 0.0 in
+        for i = 0 to mesh.nVert - 1 do
+            result.(i) <- mesh.positions.(i).(2);
+        done;
+        result;;
+
