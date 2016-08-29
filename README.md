@@ -1,10 +1,10 @@
 # Basic mesh plot with Objective Caml
-Shows meshes in OFF format, and R^2 -> R functions on a rectangular domain.
+Shows meshes in OFF format (uncolored triangle-based with float values for vertices positions), and R^2 -> R functions on a rectangular domain.
 It uses the standard OCaml graphics library (it's slow).
-The code is contained in the file **3dplot.ml** and used in **main.ml**.
+The code is contained in the file **3dplot.ml** and **mesh3dtools.ml**, and used in **main.ml** on examples.
 
 ## How to use the code
-- to use the functions in *3dplot.ml*, use *"#use "3dplot.ml";;"*
+- to use the functions in *3dplot.ml*, use *"#use "3dplot.ml";;"* (same for *mesh3dtools.ml*).
 
 - The camera is located at position (0,0,0) and you can define the position of the mesh. The camera has 3 parameters : angles Phi and Theta, and a "zoom" factor.
 
@@ -27,13 +27,18 @@ Edge style :
 
 ![image](https://raw.githubusercontent.com/Bleuje/ocaml-mesh-plot/master/pictures/centaur1_edge_ocaml.jpg)
 
-Cat + paraboloid :
+## Some tools
+**mesh3dtools.ml** has some functions to modify meshes or put them together :
+- *move mesh (x,y,z)* gives a new mesh after a translation (given by the vector (x,y,z)) to mesh.
+- *deformedMesh mesh g* applies function g to vertices positions and returns a new mesh.
+- *concatMeshList l* returns a new mesh that contains the meshes in the mesh list l.
 
-![image](https://raw.githubusercontent.com/Bleuje/ocaml-mesh-plot/master/pictures/catparaboloid.jpg)
+(Cats + deformed cat + paraboloid) concatenation:
+
+![image](https://raw.githubusercontent.com/Bleuje/ocaml-mesh-plot/master/pictures/catfamily.jpg)
 
 ## Possible future improvement
-- Increase rendering speed with another library
 - Colors defined by user
-- Compilation
 - Function to write OFF files
-- Mesh processing
+- More mesh processing
+- Increase rendering speed with another library
