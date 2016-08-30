@@ -20,7 +20,7 @@ Some examples can be computed by runnning **main.ml**.
 
 - **`plotMesh settings mesh`** plots *mesh* given its plot *settings*. The *settings* consist in many attributes : color (RGB or HSV) `.colorchoice`, drawing style (Full or Edge) `.style`, window size `.windowsize`, light direction `.lightdirection`, camera settings `.cameraview`, and the number of printed triangles per flush `.printstep`, the shader function `.shaderRGB`.
 
-- meshes have two **`colorstyle`** : if set to *Outside*, the mesh doesn't define its colors itself, if set to *VertexValue*, an array of float*float*float defines the color in rgb format for each vertex.
+- meshes have two **`colorstyle`** : if set to *Outside*, the mesh doesn't define its colors itself, if set to *VertexValue*, an array of float\*float\*float defines the color in rgb format for each vertex.
 
 - **`setColorArrayFromValues gstyle f mesh`** uses the *f* function *mesh -> float array* that generates an array from the *mesh* to define a float value for each vertex of the *mesh*. It then uses the color gradient style *gstyle* (see part about color gradients below) to define the color array of the mesh.
 
@@ -68,9 +68,12 @@ If we can draw colors when given values on vertices, let's see which values we c
 
 ## Gradient styles
 There are many gradient styles, they are all color gradients from the vertices achieving minimum and maximum values of the value array.
-**Hue**, **Saturation** and **Value** gradients have one parameter of the HSV color format changing while the others are fixed.
-The *linear* and *quadratic* color gradients use an interpolation between to colors in the RGB or HSV spaces.
-Those that have the keyword **Cycle** are some previously defined color gradients with a new interger as parameter to define how many times the gradient will be repeated (triangular periodicity).
+
+- **Hue**, **Saturation** and **Value** gradients have one parameter of the HSV color format changing while the others are fixed.
+
+- The *linear* and *quadratic* color gradients use an interpolation between to colors in the RGB or HSV spaces.
+
+- Those that have the keyword **Cycle** are some previously defined color gradients with a new interger as parameter to define how many times the gradient will be repeated (triangular periodicity).
 
 ## Known flaws
 - Slow (but I think that the fact it uses the standard library is nice, and the colors are nice and worth additional computation time)
