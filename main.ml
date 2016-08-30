@@ -1,28 +1,47 @@
-#use "mesh3dtools.ml";;
 #use "plot3d.ml";;
+#use "scalarmeshfunctions.ml";;
 
 (***************************************************)
 (********* Example of settings *********************)
 (***************************************************)
 
 (*** A / Define your own settings from scratch ***)
-let cameraPosition = ((4.,-.200.,8.0) : point3D);;
-let myCameraView = { phi = 1.5; theta = 1.2; zoomfactor = 18.0;  cameraposition = cameraPosition; }
+let cameraPosition = ((-.20.,-.100.,20.0) : point3D);;
+let myCameraView = { phi = 1.3; theta = 1.2; zoomfactor = 12.0;  cameraposition = cameraPosition; }
 
-let myLightDirection = ((-.1.0,0.5,0.0) : point3D);;
+let myLightDirection = ((1.0,0.5,-.0.5) : point3D);;
 let myColor = ((0.5,0.1,1.0) : hsv_color) ;;
 
 let myPrintStep = 10000;;
 let myWindowSize = "750x750";;
 let myStyle = Full;;
 let myColorStyle = Outside;;
+let myShaderColorFunction sc ((r,g,b) : rgb_color) =
+    let darkness = 0.3
+    and contrast = 4. in
+        let aux x =
+        int_of_float(min (max ((1.0 -. darkness)*.255.*.((1.0+.contrast*.darkness*.sc)*.x) +. darkness*.100.) 0.) 255.) in
+            (aux r,aux g,aux b);;
+
+let myShaderColorFunctionDark sc ((r,g,b) : rgb_color) =
+    let darkness = 0.3
+    and contrast = 4. in
+        let aux x =
+        int_of_float(min (max (sc*.((1.0 -. darkness)*.255.*.((1.0+.contrast*.darkness*.sc)*.x) +. darkness*.100.)) 0.) 255.) in
+            (aux r,aux g,aux b);;
+
+let myShaderColorFunctionNothing sc ((r,g,b) : rgb_color) =
+        let aux x =
+        int_of_float(255.*.x) in
+            (aux r,aux g,aux b);;
 
 let mySettings = {cameraview = myCameraView;
 colorchoice = HSV myColor;
 style = myStyle;
 lightdirection = myLightDirection;
 windowsize = myWindowSize;
-printstep = myPrintStep; };;
+printstep = myPrintStep;
+shaderRGB = myShaderColorFunctionNothing; };;
 
 (*** B / Or use the default settings from plot3d.ml ***)
 let mySettings2 = defaultSettings;;
@@ -53,17 +72,18 @@ print_int n; print_string " vertices, ";
 print_int m; print_endline " triangles.";;
 
 (*** generating a mesh from the OFF file ***)
-let filePath = "C:/Users/Etienne/Desktop/toscahires-asci/cat1.off";;
+let filePath = "examples/cat1.off";;
 
 let myCat = loadOffMesh filePath;;
 let (n,m) = (myCat.nVert,myCat.nTria) in
 print_int n; print_string " vertices, ";
 print_int m; print_endline " triangles.";;
 
-let filePath2 = "C:/Users/Etienne/Desktop/toscahires-asci/centaur1.off";;
+(*** adapt to your path ***)
+let filePath2 = "examples/cat4.off";;
 
 let myMesh2 = loadOffMesh filePath2;;
-applyValueArrayWithColors myMesh2 (Saturation (0.1,0.5)) (valueHeight myMesh2);;
+setColorFromValues (QuadraticCycleHSV (8,(0.2,0.8,1.0),(1.0,0.0,0.2))) valueDFSdepth myMesh2 ;;
 let (n,m) = (myMesh2.nVert,myMesh2.nTria) in
 print_int n; print_string " vertices, ";
 print_int m; print_endline " triangles.";;
@@ -78,26 +98,29 @@ deformedMesh (movedMesh myCat (50.0,0.0,0.0)) noise;
 deformedMesh (movedMesh myCat (25.0,50.0,0.0)) g];;
 
 
+
 (*** plot 1 ********************************)
 print_string "Plot starts... ";
-Graphics.open_graph mySettings2.windowsize;
+Graphics.open_graph mySettings.windowsize;
 Graphics.auto_synchronize false;
-plotMesh myMesh2 mySettings2;
+plotMesh mySettings myMesh2;
 print_endline "done.";;
 
 (****************************************************)
 
 (*
+
 (*** final plot ********************************)
 Graphics.clear_graph();;
 print_string "Plot starts... ";
-plotMesh myFullMesh mySettings;
+plotMesh mySettings myFullMesh ;
 print_endline "done.";;
 
 (*** Saving result *****************************)
 print_endline "Starting to write...";
 writeOffMesh myFullMesh "cats_paraboloid.off";
 print_endline "Finished writing.";;
+
 *)
 
 (******* Just to keep the graphics window open ******)

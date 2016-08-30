@@ -6,13 +6,15 @@
 =================================================*)
 type point3D = float*float*float;;
 
-type gradientStyle = Hue of float*float | Value of float*float | Saturation of float*float;;
-
 type rgb_color = float*float*float;;
 
-type colorStyle = Outside | VertexValue of rgb_color array;;
+type colorStyle =
+| Outside
+| VertexValue of rgb_color array;;
 
 type mesh = { nVert : int; nTria : int; positions : float array array; triangles : int array array; mutable colorstyle : colorStyle; };;
+
+type graph = { n : int; adj : int list array; }
 
 (*************************************************************)
 (*** MESH INPUT/OUTPUT ***************************************)
@@ -188,18 +190,18 @@ let meshOfHeightMapRect f ((xmin,xmax) : float*float) ((ymin,ymax) : float*float
             let nTria = !index*2 in
             {nVert = nVert; nTria = nTria; positions = positions; triangles = triangles; colorstyle = Outside; };;
 
-(*************************************************************)
-(*** VALUES ON VERTICES *****************************************)
-
-(* Same value on all vertices *)
-let valueConstant mesh (constant : float) =
-    Array.make (mesh.nVert) constant;;
-
-(* Height *)
-let valueHeight mesh =
-    let result = Array.make (mesh.nVert) 0.0 in
-        for i = 0 to mesh.nVert - 1 do
-            result.(i) <- mesh.positions.(i).(2);
+(*** Graph from mesh with adjacency lists ***)
+let graphOfMesh mesh =
+    let try_add x l = if (List.mem x l) then l else x::l
+    and result = Array.make (mesh.nVert) [] in
+        for i=0 to mesh.nTria - 1 do
+            let v j = mesh.triangles.(i).(j) in
+            let (a,b,c) = (v 0,v 1,v 2) in
+                result.(b) <- try_add a (result.(b));
+                result.(c) <- try_add a (result.(c));
+                result.(c) <- try_add b (result.(c));
+                result.(a) <- try_add b (result.(a));
+                result.(a) <- try_add c (result.(a));
+                result.(b) <- try_add c (result.(b));
         done;
-        result;;
-
+        { n = mesh.nVert; adj = result; };;
