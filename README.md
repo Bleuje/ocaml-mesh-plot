@@ -12,15 +12,21 @@ Some examples can be computed by runnning **main.ml**.
 
 - **mesh3dtools.ml** contains all the mesh related things independant from plot.
 
-- You can choose the positions of the camera with `.cameraposition`. The camera has 3 more parameters : angles `.phi` and `.theta` (spherical coordinates), and a *"zoom" factor* `.zoomfactor`.
-
 - **`loadMesh filePath`** loads an uncolored triangle-based OFF format mesh from the string *filePath*.
 
 - **`writeMesh mesh filePath`** writes *mesh* in OFF format to *filePath*.
 
-- **`plotMesh settings mesh`** plots *mesh* given its plot *settings*. The *settings* consist in many attributes : color (RGB or HSV) `.colorchoice`, drawing style (Full or Edge) `.style`, window size `.windowsize`, light direction `.lightdirection`, camera settings `.cameraview`, and the number of printed triangles per flush `.printstep`, the shader function `.shaderRGB`.
+- **`plotMesh settings mesh`** plots *mesh* given its plot *settings*.
 
-- meshes have two **`colorstyle`** : if set to *Outside*, the mesh doesn't define its colors itself, if set to *VertexValue*, an array of float\*float\*float defines the color in rgb format for each vertex.
+- I advice to read the types defined at the top of *mesh3dtools.ml* and *3dplot.ml* to understand how to use the code better, but I'll try to explain a little here without the definitions of the new types.
+
+- the `mesh`structure consists in the following attributes : `.nVert`: number of vertices, `.nTria` : number of triangles, `.positions` : positions.(i) is an array representing the i-th vertex position (cartesian coordinates),  `.triangles` : triangles.(i) is an array of size 3 that indicates the indices of vertices from the triangle (order gives orientation), `.colorstyle` : see below for further explaination.
+
+- The `plotSettings` structure consist in many attributes : `.colorchoice` : color if not specified by mesh (RGB or HSV), `.style` : drawing style (Full or Edge), `.windowsize` : window size, `.lightdirection` : light direction, `.cameraview` : camera settings, `.printstep` : the number of printed triangles per flush, `.shaderRGB` : the shader function (explained below).
+
+- An instance of the structure `cameraView` can define the camera view. One can choose the position of the camera with `.cameraposition`. The camera has 3 more parameters : angles `.phi` and `.theta` (spherical coordinates), and a *"zoom" factor* `.zoomfactor`. `cameraView` instances are used in the structure `plotSettings`.
+
+- meshes have two colorstyles (**`colorstyle`**) : if set to *Outside*, the mesh doesn't define its colors itself, if set to *VertexValue*, an array of float\*float\*float defines the color in rgb format for each vertex.
 
 - **`setColorArrayFromValues gstyle f mesh`** uses the *f* function *mesh -> float array* that generates an array from the *mesh* to define a float value for each vertex of the *mesh*. It then uses the color gradient style *gstyle* (see part about color gradients below) to define the color array of the mesh.
 
@@ -71,7 +77,7 @@ There are many gradient styles, they are all color gradients from the vertices a
 
 - **Hue**, **Saturation** and **Value** gradients have one parameter of the HSV color format changing while the others are fixed.
 
-- The *linear* and *quadratic* color gradients use an interpolation between to colors in the RGB or HSV spaces.
+- The *linear* and *quadratic* color gradients use an interpolation between two colors in the RGB or HSV spaces.
 
 - Those that have the keyword **Cycle** are some previously defined color gradients with a new interger as parameter to define how many times the gradient will be repeated (triangular periodicity).
 
