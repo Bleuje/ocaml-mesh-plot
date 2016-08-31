@@ -10,11 +10,11 @@ Some examples can be computed by runnning **main.ml**.
 ## How to use the code
 - To use the plot functions in *3dplot.ml*, use *"#use "3dplot.ml";;"*.
 
-- **mesh3dtools.ml** contains all the main mesh related things independant from plot.
+- **mesh3dtools.ml** contains all the main mesh related things independant from plot, **mathtools.ml** contains some mathematical purely tools.
 
-- **`loadMesh filePath`** loads an uncolored triangle-based OFF format mesh from the string *filePath*.
+- **`loadMesh filePath`** loads an uncolored uncommented triangle-based OFF format mesh from the string *filePath*.
 
-- **`writeMesh mesh filePath`** writes *mesh* in OFF format to *filePath*.
+- **`writeMesh mesh filePath`** writes *mesh* in OFF format to *filePath*. It also writes the mesh colors if there are any.
 
 - **`plotMesh settings mesh`** plots *mesh* given its plot *settings*.
 
@@ -85,6 +85,14 @@ There are many gradient styles, they are all color gradients from the vertices a
 - The `Linear` and `Quadratic` color gradients use an interpolation between two colors in the RGB or HSV spaces.
 
 - Those that have the keyword `Cycle` are some previously defined color gradients with a new interger as parameter to define how many times the gradient will be repeated (triangular periodicity).
+
+- `Personal f` is a gradient that uses the `float -> rgb_color` f function to define the gradient.
+
+## Opening results with MeshLab
+After writing the mesh with `writeOffMesh` it is possible to see load it in MeshLab as shown in the picture below (OCaml plot on the left, MeshLab plot on the right) :
+
+![image](https://raw.githubusercontent.com/Bleuje/ocaml-mesh-plot/master/pictures/ocamlplotcomparison1.jpg)
+![image](https://raw.githubusercontent.com/Bleuje/ocaml-mesh-plot/master/pictures/ocamlplotcomparison2.jpg)
 
 ## Known flaws
 - Slow (but I think that the fact it uses the standard library is nice, and the colors are nice and worth additional computation time).
