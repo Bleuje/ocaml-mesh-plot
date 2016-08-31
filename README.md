@@ -8,15 +8,15 @@ The code is contained in the file **3dplot.ml** and **mesh3dtools.ml**, some mor
 Some examples can be computed by runnning **main.ml**.
 
 ## How to use the code
-- To use the plot functions in *3dplot.ml*, use **`#use "3dplot.ml";;`**.
-
-- **mesh3dtools.ml** contains all the main mesh related things independant from plot, **mathtools.ml** contains some purely mathematical tools.
+- To use the plot functions in *3dplot.ml*, use **`#use "3dplot.ml";;`** and then `open Plot3D;;`. To load functions to have some interesting (or not) textures, **`#use "scalarMeshFunctions.ml";;`** and `open MeshFunctions;;`.
 
 - **`loadMesh filePath`** loads an uncolored uncommented triangle-based OFF format mesh from the string *filePath*.
 
 - **`writeMesh mesh filePath`** writes *mesh* in OFF format to *filePath*. It also writes the mesh colors if there are any.
 
 - **`plotMesh settings mesh`** plots *mesh* given its plot *settings*.
+
+- **mesh3dtools.ml** contains all the main mesh related things independant from plot, **mathtools.ml** contains some purely mathematical tools.
 
 ### More detailed information :
 
@@ -43,7 +43,7 @@ Full style vs Edge style :
 ![image](https://raw.githubusercontent.com/Bleuje/ocaml-mesh-plot/master/pictures/centaur1_edge_ocaml.jpg)
 
 ## Some tools
-**mesh3dtools.ml** has some functions to create meshes, modify meshes or put them together :
+The module **`Mesh3D`** (contained in `Plot3D`) has some functions to create meshes, modify meshes or put them together :
 - **`copyMesh mesh`** returns a copy of *mesh*.
 - **`movedMesh mesh (x,y,z)`** returns a new mesh after a translation (given by the vector (x,y,z)) to mesh.
 - **`deformedMesh mesh g`** applies function *g* to vertices positions of *mesh* to return a new mesh.
@@ -65,7 +65,7 @@ Here is a picture that shows the difference without/with shader :
 ![image](https://raw.githubusercontent.com/Bleuje/ocaml-mesh-plot/master/pictures/shadertest.jpg)
 
 ## Scalar functions
-If we can draw colors when given values on vertices, let's see which values we can give. **meshScalarFunctions.ml** contains many examples of functions (they end with *_value*) that can be applied to meshes to can scalar values on the whole mesh. They either return `VertexValues` of a float array (values for each vertex), or `PolygonValues` of a float array (values for each triangle). `setColorArrayFromValues gstyle f mesh` will work on both cases.
+If we can draw colors when given values on vertices, let's see which values we can give. The module **`MeshFunctions`** from *meshScalarFunctions.ml* contains many examples of functions (they end with *_value*) that can be applied to meshes to can scalar values on the whole mesh. They either return `VertexValues` of a float array (values for each vertex), or `PolygonValues` of a float array (values for each triangle). `setColorArrayFromValues gstyle f mesh` will work on both cases.
 
 - `constant_value c`and `height_value`are quite explicit.
 - Some other functions perform a BFS or DFS on the mesh, you can put the index of the starting vertex as argument (without it takes a random start). Those functions either return the time when the vertex was visited, or the depth from start, on each vertex. Therefore the function names are `bfsCount_value`, `dfsCount_Value`, `bfsDepth_value`, `dfsDepth_value`.
