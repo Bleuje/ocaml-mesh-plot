@@ -10,7 +10,7 @@ Some examples can be computed by runnning **main.ml**.
 ## How to use the code
 - To use the plot functions in *3dplot.ml*, use **`#use "3dplot.ml";;`**.
 
-- **mesh3dtools.ml** contains all the main mesh related things independant from plot, **mathtools.ml** contains some mathematical purely tools.
+- **mesh3dtools.ml** contains all the main mesh related things independant from plot, **mathtools.ml** contains some purely mathematical tools.
 
 - **`loadMesh filePath`** loads an uncolored uncommented triangle-based OFF format mesh from the string *filePath*.
 
@@ -101,8 +101,8 @@ After writing the mesh with `writeOffMesh` it is possible to load and see it in 
 ## Possible future improvement
 - More mesh processing
 - Make it more user friendly
-- Increase rendering speed with another library
-- Optimize speed
-- More functionnal style
-- Move the camera on a simplified point cloud
+- Increase rendering speed
+- More functionnal coding style
+- Move the camera with a simplified point cloud reprenting the mesh
+- Generalize to polygon facets
 - Fix bugs?
