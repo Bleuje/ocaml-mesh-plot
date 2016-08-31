@@ -1,14 +1,13 @@
 ![image](https://raw.githubusercontent.com/Bleuje/ocaml-mesh-plot/master/pictures/header.jpg)
 
 # Basic mesh plot with Objective Caml
-Shows meshes in OFF format (uncolored triangle-based with float values for vertices positions), and R^2 -> R functions on a rectangular domain.
-It uses the standard OCaml graphics library (it's slow).
-The code is contained in the file **3dplot.ml** and **mesh3dtools.ml**, some more functions are in **meshScalarFunctions.ml**.
+So far, this is mainly a module (`Plot3D`) to show meshes from OFF format (uncolored triangle-based with float values as vertices positions), and R^2 -> R functions on a rectangular domain.
+It uses the standard OCaml graphics library (it is slow).
 
-Some examples can be computed by runnning **main.ml**.
+Some examples are shown by runnning **main.ml**.
 
 ## How to use the code
-- To use the plot functions in *3dplot.ml*, use **`#use "3dplot.ml";;`** and then `open Plot3D;;`. To load functions to have some interesting (or not) textures, **`#use "scalarMeshFunctions.ml";;`** and `open MeshFunctions;;`.
+- To use the plot functions in *3dplot.ml*, use **`#use "3dplot.ml"`** and then `open Plot3D`. To load functions to have some interesting (or not) textures, **`#use "scalarMeshFunctions.ml"`** and `open MeshFunctions`.
 
 - **`loadMesh filePath`** loads an uncolored uncommented triangle-based OFF format mesh from the string *filePath*.
 
@@ -98,6 +97,6 @@ After writing the mesh with `writeOffMesh` it is possible to load and see it in 
 - Make it more user friendly
 - Increase rendering speed
 - More functionnal coding style
-- Move the camera with a simplified point cloud representing the mesh
-- Generalize to polygon facets
+- Move the camera with a simplified point cloud representing the mesh, add a default camera position based on the mesh
+- Generalize to more mesh formats
 - Fix bugs?
