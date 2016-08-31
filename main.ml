@@ -80,7 +80,7 @@ print_int m; print_endline " triangles.";;
 let filePath2 = "examples/cat2.off";;
 
 let myMesh2 = loadOffMesh filePath2;;
-setColorFromValues (LinearCycleHSV (1,(1.0,1.0,1.0),(0.5,1.0,0.6))) (discreteGaussianCurvature_value 0.02) myMesh2 ;;
+setColorFromValues (LinearCycleHSV (1,(1.0,1.0,1.0),(0.5,1.0,0.6))) (smoothenValues 50 (discreteGaussianCurvature_value 0.09)) myMesh2;;
 let (n,m) = (myMesh2.nVert,myMesh2.nTria) in
 print_int n; print_string " vertices, ";
 print_int m; print_endline " triangles.";;

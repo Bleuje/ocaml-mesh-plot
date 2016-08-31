@@ -137,7 +137,7 @@ let discreteGaussianCurvature_value abs_max mesh =
                 let ind = mesh.triangles.(i).(j) in
                     result.(ind) <- result.(ind) -. angleOfTriangle mesh i j;
             done
-        done;(*
+        done;(* debugging?
         let min_ = ref 100.
         and max_ = ref (-.100.) in*)
         for i = 0 to mesh.nVert - 1 do(*
@@ -151,5 +151,51 @@ let discreteGaussianCurvature_value abs_max mesh =
         print_float (!max_);
         print_newline();*)
         VertexValues result;;
+
+(********************)
+(*** SMOOTHING    ***)
+(********************)
+let smoothVertex max_iter v mesh =
+    let graph = graphOfMesh mesh in
+    for it = 0 to max_iter - 1 do
+        let v2 = Array.make (mesh.nVert) 0. in
+        for i = 0 to mesh.nVert - 1 do
+            let meanList = i::(graph.adj.(i)) in
+            List.iter (fun j -> (v2.(i) <- v2.(i) +. v.(j);)) meanList;
+            v2.(i) <- v2.(i)/.float_of_int(List.length meanList);
+        done;
+        Array.iteri (fun i _ -> (v.(i) <- v2.(i))) v;
+    done;
+    VertexValues v;;
+
+let vertexValuesFromTriangleValues v mesh =
+    let result = Array.make (mesh.nVert) 0.
+    and count = Array.make (mesh.nVert) 0 in
+        let f i j = mesh.triangles.(i).(j) in
+        for i=0 to mesh.nTria - 1 do
+            for j = 0 to 2 do
+                result.(f i j) <- result.(f i j) +. v.(i);
+                count.(f i j) <- count.(f i j) + 1;
+            done
+        done;
+        for i=0 to mesh.nVert - 1 do
+            result.(i) <- result.(i)/.float_of_int(count.(i));
+        done;
+        result;;
+
+let smoothTriangle max_iter v mesh =
+    smoothVertex max_iter (vertexValuesFromTriangleValues v mesh) mesh;;
+
+(* Iterative smoothing using the mean value with neighbors,
+in the mesh graph *)
+let smoothenValues max_iter f mesh = 
+    let res_ = f mesh in
+        match res_ with
+            | VertexValues v -> smoothVertex max_iter v mesh
+            | PolygonValues v -> smoothTriangle max_iter v mesh;;
+let smoothenValuesStep f mesh =
+    smoothenValues 1 f mesh;;
+
+(* Future plans : use cotangent weights and Laplace-Beltrami basis *)
             
             
