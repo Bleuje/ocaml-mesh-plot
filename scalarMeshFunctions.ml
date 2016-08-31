@@ -1,15 +1,11 @@
 (*************************************************
 ==================================================
-        Scalar mesh functions in OCaml
+        Scalar functions on meshes in OCaml
         2016
         Etienne JACOB
 =================================================*)
 
 (*===============================================*)
-
-let diff3 (x1,y1,z1) (x2,y2,z2) = (x2-.x1,y2-.y1,z2-.z1);;
-
-let fabs x = max (-.x) x;;
 
 (* Same value on all vertices *)
 let constant_value (constant : float) mesh =
@@ -19,7 +15,7 @@ let constant_value (constant : float) mesh =
 let height_value mesh =
     let result = Array.make (mesh.nVert) 0.0 in
         for i = 0 to mesh.nVert - 1 do
-            result.(i) <- mesh.positions.(i).(2);
+            result.(i) <- let (_,_,z) = mesh.positions.(i) in z;
         done;
         VertexValues result;;
 
@@ -101,31 +97,24 @@ let dfsDepth_value (k : int) mesh =
         VertexValues result;;
 let dfsDepth_value mesh = dfsDepth_value (Random.int mesh.nVert) mesh;;
 
-let _pi = 4.*.atan(1.0);;
-
 (* Triangle area *)
 let areaOfTriangle mesh ind =
-    let point3dOfPositionArray i =
-        ((mesh.positions.(i).(0),mesh.positions.(i).(1),mesh.positions.(i).(2)) : point3D) in
-        let (a,b,c) = (point3dOfPositionArray mesh.triangles.(ind).(0),
-        point3dOfPositionArray mesh.triangles.(ind).(1),
-        point3dOfPositionArray mesh.triangles.(ind).(2)) in
-            let (ab,ac) = (diff3 a b,diff3 a c) in
-                0.5*.norm3 (cross ab ac);;
+        let (a,b,c) = (mesh.positions.(mesh.triangles.(ind).(0)),
+        mesh.positions.(mesh.triangles.(ind).(1)),
+        mesh.positions.(mesh.triangles.(ind).(2))) in
+            area a b c;;
 
 let triangleArea_value mesh =
-    PolygonValues (Array.init (mesh.nTria) (areaOfTriangle mesh));;
+    TriangleValues (Array.init (mesh.nTria) (areaOfTriangle mesh));;
 
 (* Discrete gaussian curvature *)
 let angleOfTriangle mesh i j =
-    let point3dOfPositionArray i =
-        ((mesh.positions.(i).(0),mesh.positions.(i).(1),mesh.positions.(i).(2)) : point3D) in
-        let (a,b,c) = (point3dOfPositionArray mesh.triangles.(i).((0 + j) mod 3),
-        point3dOfPositionArray mesh.triangles.(i).((1 + j) mod 3),
-        point3dOfPositionArray mesh.triangles.(i).((2 + j) mod 3)) in
-            let (ab,ac) = (diff3 a b,diff3 a c) in
-                let cosine = (scal ab ac)/.(norm3 (ab)*.norm3 (ac)) in
-                    acos(cosine);;
+    let (a,b,c) = (mesh.positions.(mesh.triangles.(i).((0 + j) mod 3)),
+    mesh.positions.(mesh.triangles.(i).((1 + j) mod 3)),
+    mesh.positions.(mesh.triangles.(i).((2 + j) mod 3))) in
+        let (ab,ac) = (diff3 a b,diff3 a c) in
+            let cosine = (scal ab ac)/.(norm3 (ab)*.norm3 (ac)) in
+                acos(cosine);;
 
 (* Discrete gaussian curvature : abs_max controls the maximum absolute value of values,
 to prevent from bugs coming from  incoherent high or low values that
@@ -168,21 +157,6 @@ let smoothVertex max_iter v mesh =
     done;
     VertexValues v;;
 
-let vertexValuesFromTriangleValues v mesh =
-    let result = Array.make (mesh.nVert) 0.
-    and count = Array.make (mesh.nVert) 0 in
-        let f i j = mesh.triangles.(i).(j) in
-        for i=0 to mesh.nTria - 1 do
-            for j = 0 to 2 do
-                result.(f i j) <- result.(f i j) +. v.(i);
-                count.(f i j) <- count.(f i j) + 1;
-            done
-        done;
-        for i=0 to mesh.nVert - 1 do
-            result.(i) <- result.(i)/.float_of_int(count.(i));
-        done;
-        result;;
-
 let smoothTriangle max_iter v mesh =
     smoothVertex max_iter (vertexValuesFromTriangleValues v mesh) mesh;;
 
@@ -192,7 +166,7 @@ let smoothenValues max_iter f mesh =
     let res_ = f mesh in
         match res_ with
             | VertexValues v -> smoothVertex max_iter v mesh
-            | PolygonValues v -> smoothTriangle max_iter v mesh;;
+            | TriangleValues v -> smoothTriangle max_iter v mesh;;
 let smoothenValuesStep f mesh =
     smoothenValues 1 f mesh;;
 

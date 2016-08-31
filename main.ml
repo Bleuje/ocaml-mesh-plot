@@ -8,10 +8,14 @@
 (*-----------------------------------------------*)
 (*** A / Define your own settings from scratch ***)
 (*-----------------------------------------------*)
-let cameraPosition = ((-.20.,-.100.,20.0) : point3D);;
-let myCameraView = { phi = 1.3; theta = 1.2; zoomfactor = 13.5;  cameraposition = cameraPosition; }
+let cameraPosition = ((-.20.,-.100.,20.0) : vec3D);;
+let myCameraView =
+{ phi = 1.3;
+theta = 1.2;
+zoomfactor = 13.5;
+cameraposition = cameraPosition; }
 
-let myLightDirection = ((-.1.0,0.5,-.0.5) : point3D);;
+let myLightDirection = ((-.1.0,0.5,-.0.5) : vec3D);;
 let myColor = ((0.5,0.1,1.0) : hsv_color) ;;
 
 let myPrintStep = 10000;;
@@ -44,7 +48,7 @@ shaderRGB = myShaderColorFunction; };;
 (*----------------------------------------------------*)
 let mySettings2 = defaultSettings;;
 
-let myField ((x,y,z) : point3D) =
+let myField ((x,y,z) : vec3D) =
     (x/.50.,y/.50.,100.-.z/.50.);;
 
 mySettings2.colorchoice <- SpaceColor myField;
@@ -80,14 +84,14 @@ print_int m; print_endline " triangles.";;
 let filePath2 = "examples/cat2.off";;
 
 let myMesh2 = loadOffMesh filePath2;;
-setColorFromValues (LinearCycleHSV (1,(1.0,1.0,1.0),(0.5,1.0,0.6))) (smoothenValues 50 (discreteGaussianCurvature_value 0.09)) myMesh2;;
+setColorFromValues (LinearCycleHSV (1,(1.0,1.0,1.0),(0.5,1.0,0.6))) (smoothenValues 3 bfsDepth_value) myMesh2;;
 let (n,m) = (myMesh2.nVert,myMesh2.nTria) in
 print_int n; print_string " vertices, ";
 print_int m; print_endline " triangles.";;
 
 (*** deformation function ***)
-let g x y z = (1.5*.x,y,2.0*.z);;
-let noise x y z = (x +. (-. 0.5 +. Random.float 1.),y +. (-. 0.5 +. Random.float 1.),z +. (-. 0.5 +. Random.float 1.));;
+let g (x,y,z) = (1.5*.x,y,2.0*.z);;
+let noise (x,y,z) = (x +. (-. 0.5 +. Random.float 1.),y +. (-. 0.5 +. Random.float 1.),z +. (-. 0.5 +. Random.float 1.));;
 
 (*** putting meshes together ***)
 let myFullMesh = concatMeshList [copyMesh myMesh; myCat;
@@ -105,12 +109,12 @@ print_endline "done.";;
 
 (****************************************************)
 
-(* Demo with concatenation of different meshes *) (*
+(* Demo with concatenation of different meshes *) 
 
 (*** final plot ********************************)
 Graphics.clear_graph();;
 print_string "Plot starts... ";
-setColorFromValues (LinearHSV ((1.0,1.0,1.0),(0.5,1.0,0.6))) (discreteGaussianCurvature_value 0.05) myFullMesh;
+setColorFromValues (LinearHSV ((1.0,1.0,1.0),(0.5,1.0,0.6))) (smoothenValues 8 triangleArea_value) myFullMesh;
 plotMesh mySettings myFullMesh ;
 print_endline "done.";;
 
@@ -119,7 +123,7 @@ print_endline "Starting to write...";
 writeOffMesh myFullMesh "cats_paraboloid.off";
 print_endline "Finished writing.";;
 
-*)
+
 
 (******* Just to keep the graphics window open ******)
 let last = Scanf.scanf "%d " (fun x->x);;
