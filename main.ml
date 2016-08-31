@@ -2,35 +2,31 @@
 #use "scalarmeshfunctions.ml";;
 
 (***************************************************)
-(********* Example of settings *********************)
+(********* I / Example of settings *****************)
 (***************************************************)
 
+(*-----------------------------------------------*)
 (*** A / Define your own settings from scratch ***)
+(*-----------------------------------------------*)
 let cameraPosition = ((-.20.,-.100.,20.0) : point3D);;
-let myCameraView = { phi = 1.3; theta = 1.2; zoomfactor = 12.0;  cameraposition = cameraPosition; }
+let myCameraView = { phi = 1.3; theta = 1.2; zoomfactor = 13.5;  cameraposition = cameraPosition; }
 
-let myLightDirection = ((1.0,0.5,-.0.5) : point3D);;
+let myLightDirection = ((-.1.0,0.5,-.0.5) : point3D);;
 let myColor = ((0.5,0.1,1.0) : hsv_color) ;;
 
 let myPrintStep = 10000;;
 let myWindowSize = "750x750";;
 let myStyle = Full;;
 let myColorStyle = Outside;;
+
 let myShaderColorFunction sc ((r,g,b) : rgb_color) =
-    let darkness = 0.3
-    and contrast = 4. in
+    let darkness = 0.5
+    and contrast = 1.5 in
         let aux x =
         int_of_float(min (max ((1.0 -. darkness)*.255.*.((1.0+.contrast*.darkness*.sc)*.x) +. darkness*.100.) 0.) 255.) in
             (aux r,aux g,aux b);;
 
-let myShaderColorFunctionDark sc ((r,g,b) : rgb_color) =
-    let darkness = 0.3
-    and contrast = 4. in
-        let aux x =
-        int_of_float(min (max (sc*.((1.0 -. darkness)*.255.*.((1.0+.contrast*.darkness*.sc)*.x) +. darkness*.100.)) 0.) 255.) in
-            (aux r,aux g,aux b);;
-
-let myShaderColorFunctionNothing sc ((r,g,b) : rgb_color) =
+let myEmptyShaderColorFunction sc ((r,g,b) : rgb_color) =
         let aux x =
         int_of_float(255.*.x) in
             (aux r,aux g,aux b);;
@@ -41,9 +37,11 @@ style = myStyle;
 lightdirection = myLightDirection;
 windowsize = myWindowSize;
 printstep = myPrintStep;
-shaderRGB = myShaderColorFunctionNothing; };;
+shaderRGB = myShaderColorFunction; };;
 
+(*----------------------------------------------------*)
 (*** B / Or use the default settings from plot3d.ml ***)
+(*----------------------------------------------------*)
 let mySettings2 = defaultSettings;;
 
 let myField ((x,y,z) : point3D) =
@@ -57,9 +55,8 @@ mySettings2.cameraview.cameraposition <- (-.20.,-.60.,8.0);
 mySettings2.style <- Full;;
 
 
-
 (****************************************************)
-(*** Demo *******************************************)
+(*** II / Demonstration *****************************)
 (****************************************************)
 
 (*** paraboloid example ***)
@@ -80,10 +77,10 @@ print_int n; print_string " vertices, ";
 print_int m; print_endline " triangles.";;
 
 (*** adapt to your path ***)
-let filePath2 = "examples/cat4.off";;
+let filePath2 = "examples/cat2.off";;
 
 let myMesh2 = loadOffMesh filePath2;;
-setColorFromValues (QuadraticCycleHSV (8,(0.2,0.8,1.0),(1.0,0.0,0.2))) valueDFSdepth myMesh2 ;;
+setColorFromValues (LinearCycleHSV (1,(1.0,1.0,1.0),(0.5,1.0,0.6))) (discreteGaussianCurvature_value 0.02) myMesh2 ;;
 let (n,m) = (myMesh2.nVert,myMesh2.nTria) in
 print_int n; print_string " vertices, ";
 print_int m; print_endline " triangles.";;
@@ -108,11 +105,12 @@ print_endline "done.";;
 
 (****************************************************)
 
-(*
+(* Demo with concatenation of different meshes *) (*
 
 (*** final plot ********************************)
 Graphics.clear_graph();;
 print_string "Plot starts... ";
+setColorFromValues (LinearHSV ((1.0,1.0,1.0),(0.5,1.0,0.6))) (discreteGaussianCurvature_value 0.05) myFullMesh;
 plotMesh mySettings myFullMesh ;
 print_endline "done.";;
 

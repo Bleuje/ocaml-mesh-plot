@@ -10,11 +10,19 @@ type rgb_color = float*float*float;;
 
 type colorStyle =
 | Outside
-| VertexValue of rgb_color array;;
+| VertexColor of rgb_color array
+| PolygonColor of rgb_color array;;
 
-type mesh = { nVert : int; nTria : int; positions : float array array; triangles : int array array; mutable colorstyle : colorStyle; };;
+type mesh =
+{ nVert : int;
+nTria : int;
+positions : float array array;
+triangles : int array array;
+mutable colorstyle : colorStyle; };;
 
-type graph = { n : int; adj : int list array; }
+type meshGraph =
+{ n : int;
+adj : int list array; }
 
 (*************************************************************)
 (*** MESH INPUT/OUTPUT ***************************************)

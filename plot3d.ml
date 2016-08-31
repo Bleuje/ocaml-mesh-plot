@@ -46,6 +46,10 @@ mutable windowsize : string;
 mutable printstep : int;
 mutable shaderRGB : float -> rgb_color -> int*int*int; }
 
+type values =
+| VertexValues of float array
+| PolygonValues of float array;;
+
 (*************************************************)
 (***             Default  Settings             ***)
 (*************************************************)
@@ -77,7 +81,10 @@ shaderRGB = myShaderColorFunction; };;
 (********* 3D --> 2D projection functions ********)
 (*************************************************)
 (* Euclidean norm *)
-let norm x y z=
+let norm x y z =
+    sqrt((x*.x)+.(y*.y)+.(z*.z));;
+    
+let norm3 (x,y,z) =
     sqrt((x*.x)+.(y*.y)+.(z*.z));;
 
 (* Scalar product *)
@@ -193,7 +200,8 @@ let plotTriangle mesh ind ((x,y,z) : point3D) cameraParameters (lightDirection :
                     | HSV c -> ((hsv_to_rgb c) : rgb_color)
                     | RGB (r,g,b) -> ((debug r,debug g,debug b) : rgb_color)
                     | SpaceColor field -> let (r_,g_,b_) = field (cx,cy,cz) in (debug r_,debug g_, debug b_))
-                | VertexValue varr -> ((average3 varr.(arr.(0)) varr.(arr.(1)) varr.(arr.(2))) : rgb_color)
+                | VertexColor varr -> ((average3 varr.(arr.(0)) varr.(arr.(1)) varr.(arr.(2))) : rgb_color)
+                | PolygonColor varr -> (varr.(ind) : rgb_color)
                 in
                     set_color_from_normal normal lightDirection (cx-.x,cy-.y,cz-.z) chosenColor shadow;
                     match style with
@@ -219,17 +227,20 @@ let triangle_cycle f = let i = int_of_float(f) in
 
 (* changes the color style according to values on vertices *)
 let setColorFromValues gstyle f mesh =
-    let varray = f mesh
-    and debug x = min (max x 0.0) 1.0
-    and result = Array.make (mesh.nVert) (0.0,0.0,0.0)
+    let varray_ = f mesh in
+    let (n,varray) = match varray_ with
+    | VertexValues a -> (mesh.nVert,a)
+    | PolygonValues a -> (mesh.nTria,a) in
+    let debug x = min (max x 0.0) 1.0
+    and result = Array.make (n) (0.0,0.0,0.0)
     and epsilon = 0.00000001
     and min_ = ref 1000000000.0
     and max_ = ref (-.1000000000.0) in
-    for i = 0 to mesh.nVert - 1 do
+    for i = 0 to n - 1 do
         min_ := min (!min_) varray.(i);
         max_ := max (!max_) varray.(i);
     done;
-    for i = 0 to mesh.nVert - 1 do
+    for i = 0 to n - 1 do
         let current = (varray.(i) +. !min_)/.(!max_ -. !min_ +. epsilon) in
             match gstyle with
             | Hue (s,v) -> result.(i) <- (hsv_to_rgb (current,debug s,debug v) : rgb_color)
@@ -268,5 +279,7 @@ let setColorFromValues gstyle f mesh =
                                                         result.(i) <- let pos y1 y2 = (1.0-.current2*.current2)*.y1 +. current2*.current2*.y2 in
                                                         hsv_to_rgb (pos h1 h2, pos s1 s2, pos v1 v2)
     done;
-    mesh.colorstyle <- VertexValue result;;
-    
+    match varray_ with
+    | VertexValues a -> mesh.colorstyle <- VertexColor result
+    | PolygonValues a -> mesh.colorstyle <- PolygonColor result
+;;
