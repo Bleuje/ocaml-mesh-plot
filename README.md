@@ -34,13 +34,8 @@ Some examples can be computed by runnning **main.ml**.
 
 - Comments in the code contain additional information on how to use functions.
 
-## Examples of results
-Examples of rendered meshes from the [Non-rigid world dataset here](http://tosca.cs.technion.ac.il/book/resources_data.html) :
-
-Full style vs Edge style :
-
-![image](https://raw.githubusercontent.com/Bleuje/ocaml-mesh-plot/master/pictures/centaur1_ocaml.jpg)
-![image](https://raw.githubusercontent.com/Bleuje/ocaml-mesh-plot/master/pictures/centaur1_edge_ocaml.jpg)
+## Mesh data
+Examples of rendered meshes presented here use the [Non-rigid world dataset here](http://tosca.cs.technion.ac.il/book/resources_data.html) :
 
 ## Some tools
 The module **`Mesh3D`** (contained in `Plot3D`) has some functions to create meshes, modify meshes or put them together :
@@ -103,6 +98,6 @@ After writing the mesh with `writeOffMesh` it is possible to load and see it in 
 - Make it more user friendly
 - Increase rendering speed
 - More functionnal coding style
-- Move the camera with a simplified point cloud reprenting the mesh
+- Move the camera with a simplified point cloud representing the mesh
 - Generalize to polygon facets
 - Fix bugs?
