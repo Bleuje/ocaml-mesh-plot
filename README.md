@@ -18,6 +18,8 @@ Some examples can be computed by runnning **main.ml**.
 
 - **`plotMesh settings mesh`** plots *mesh* given its plot *settings*.
 
+### More detailed information :
+
 - I advice to read the types defined at the top of *mesh3dtools.ml* and *3dplot.ml* to understand how to use the code better, but I'll try to explain a little here without the definitions of the new types.
 
 - the **`mesh`**structure consists in the following attributes : `.nVert`: number of vertices, `.nTria` : number of triangles, `.positions` : positions.(i) is an array representing the i-th vertex position (cartesian coordinates),  `.triangles` : triangles.(i) is an array of size 3 that indicates the indices of vertices from the triangle (order gives orientation), `.colorstyle` : see below for further explaination.
@@ -28,7 +30,7 @@ Some examples can be computed by runnning **main.ml**.
 
 - meshes have two colorstyles (**`colorstyle`**) : if set to `Outside`, the mesh doesn't define its colors itself, if set to `VertexValue`, an array of float\*float\*float defines the color in rgb format for each vertex.
 
-- **`setColorArrayFromValues gstyle f mesh`** uses the *f* function *mesh -> float array* that generates an array from the *mesh* to define a float value for each vertex of the *mesh*. It then uses the color gradient style *gstyle* (see part about color gradients below) to define the color array of the mesh.
+- **`setColorArrayFromValues gstyle f mesh`** uses the *f* function `mesh -> values` that generates an array from the *mesh* to define a float value for each vertex or for each triangle of the *mesh*. It then uses the color gradient style *gstyle* (see part about color gradients below) to define the color array of the mesh.
 
 - Comments in the code contain additional information on how to use functions.
 
@@ -53,10 +55,6 @@ on a rectangle domain with borders parallel to x or y axis (boundaries are given
 
 ![image](https://raw.githubusercontent.com/Bleuje/ocaml-mesh-plot/master/pictures/catfamily2.jpg)
 
-Centaur with a saturation gradient based on vertex height :
-
-![image](https://raw.githubusercontent.com/Bleuje/ocaml-mesh-plot/master/pictures/centaurgradientheight.jpg)
-
 ## Shaders
 The plot settings have an attribute `.shaderRGB`. It contains a function `shader sc c` that takes as arguments the scalar product (between the normalized light direction and face normal) sc, and the color sc (triplet of floats between 0.0 and 1.0 in RGB format). It has to return a triplet of integers beween 0 and 255 representing the color in RGB format.
 
@@ -66,11 +64,14 @@ Here is a picture that shows the difference without/with shader :
 
 ![image](https://raw.githubusercontent.com/Bleuje/ocaml-mesh-plot/master/pictures/shadertest.jpg)
 
-## Scalar Functions
-If we can draw colors when given values on vertices, let's see which values we can give. **meshScalarFunctions.ml** contains many examples of functions that can be applied to meshes to can scalar values on the whole mesh.
+## Scalar functions
+If we can draw colors when given values on vertices, let's see which values we can give. **meshScalarFunctions.ml** contains many examples of functions (they end with *_value*) that can be applied to meshes to can scalar values on the whole mesh. They either return `VertexValues` of a float array (values for each vertex), or `PolygonValues` of a float array (values for each triangle). `setColorArrayFromValues gstyle f mesh` will work on both cases.
 
-- `valueConstant c`and `valueHeight`are quite explicit.
-- Some other functions perform a BFS or DFS on the mesh, you can put the index of the starting vertex as argument (without it takes a random start). Those functions either return the time when the vertex was visited, or the depth from start, on each vertex. Therefore the function names are `valueBFScount`, `valueDFScount`, `valueBFSdepth`, `valueDFSdepth`.
+- `constant_value c`and `height_value`are quite explicit.
+- Some other functions perform a BFS or DFS on the mesh, you can put the index of the starting vertex as argument (without it takes a random start). Those functions either return the time when the vertex was visited, or the depth from start, on each vertex. Therefore the function names are `bfsCount_value`, `dfsCount_Value`, `bfsDepth_value`, `dfsDepth_value`.
+- `discreteGaussianCurvature_value abs_max` computes the discrete gaussian curvature. I used 2*PI - (sum of the angles around the vertex) as formula. I think it should actually use the area around. So far, there are some unexpected high and low values, and it's possible to get rid of them using the `abs_max` parameter (for example set to 0.05). Here's a picture with a gradient applied to the discrete gaussian curvature :
+
+![image](https://raw.githubusercontent.com/Bleuje/ocaml-mesh-plot/master/pictures/discretegaussiancurvature.jpg)
 
 ## Gradient styles
 There are many gradient styles, they are all color gradients from the vertices achieving minimum and maximum values of the value array.
@@ -83,10 +84,13 @@ There are many gradient styles, they are all color gradients from the vertices a
 
 ## Known flaws
 - Slow (but I think that the fact it uses the standard library is nice, and the colors are nice and worth additional computation time).
-- Absence of antialiasing.
+- Absence of anti-aliasing.
 
 ## Possible future improvement
 - More mesh processing
 - Make it more user friendly
 - Increase rendering speed with another library
 - Optimize speed
+- More functionnal style
+- Move the camera on a simplified point cloud
+- Fix bugs?
