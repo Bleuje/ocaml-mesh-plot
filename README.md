@@ -73,6 +73,10 @@ If we can draw colors when given values on vertices, let's see which values we c
 
 ![image](https://raw.githubusercontent.com/Bleuje/ocaml-mesh-plot/master/pictures/discretegaussiancurvature.jpg)
 
+- `smoothenValues max_iter f` adapts the function f (`mesh -> values`) by computing `max_iter` iterations of mean values with neighbors in the mesh graph. `smoothenValues max_iter f` will have type `mesh -> values`. Example of use : `setColorFromValues (LinearCycleHSV (1,(1.0,1.0,1.0),(0.5,1.0,0.6))) (smoothenValues 50 (discreteGaussianCurvature_value 0.09)) myMesh2`, result picture below :
+
+![image](https://raw.githubusercontent.com/Bleuje/ocaml-mesh-plot/master/pictures/smoothcurvature.jpg)
+
 ## Gradient styles
 There are many gradient styles, they are all color gradients from the vertices achieving minimum and maximum values of the value array.
 
