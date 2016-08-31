@@ -89,7 +89,7 @@ There are many gradient styles, they are all color gradients from the vertices a
 - `Personal f` is a gradient that uses the `float -> rgb_color` f function to define the gradient.
 
 ## Opening results with MeshLab
-After writing the mesh with `writeOffMesh` it is possible to see load it in MeshLab as shown in the picture below (OCaml plot on the left, MeshLab plot on the right) :
+After writing the mesh with `writeOffMesh` it is possible to load and see it in MeshLab as shown in the picture below (OCaml plot on the left, MeshLab plot on the right) :
 
 ![image](https://raw.githubusercontent.com/Bleuje/ocaml-mesh-plot/master/pictures/ocamlplotcomparison1.jpg)
 ![image](https://raw.githubusercontent.com/Bleuje/ocaml-mesh-plot/master/pictures/ocamlplotcomparison2.jpg)
