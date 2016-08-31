@@ -8,7 +8,7 @@ The code is contained in the file **3dplot.ml** and **mesh3dtools.ml**, some mor
 Some examples can be computed by runnning **main.ml**.
 
 ## How to use the code
-- To use the plot functions in *3dplot.ml*, use *"#use "3dplot.ml";;"*.
+- To use the plot functions in *3dplot.ml*, use **`#use "3dplot.ml";;`**.
 
 - **mesh3dtools.ml** contains all the main mesh related things independant from plot, **mathtools.ml** contains some mathematical purely tools.
 
