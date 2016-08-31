@@ -1,6 +1,9 @@
 #use "plot3d.ml";;
 #use "scalarmeshfunctions.ml";;
 
+open Plot3D;;
+open MeshFunctions;;
+
 (***************************************************)
 (********* I / Example of settings *****************)
 (***************************************************)
@@ -25,7 +28,7 @@ let myColorStyle = Outside;;
 
 let myShaderColorFunction sc ((r,g,b) : rgb_color) =
     let darkness = 0.5
-    and contrast = 1.5 in
+    and contrast = 1.8 in
         let aux x =
         int_of_float(min (max ((1.0 -. darkness)*.255.*.((1.0+.contrast*.darkness*.sc)*.x) +. darkness*.100.) 0.) 255.) in
             (aux r,aux g,aux b);;
@@ -103,7 +106,7 @@ deformedMesh (movedMesh myCat (25.0,50.0,0.0)) g];;
 (*** plot 1 ********************************)
 print_string "Plot starts... ";
 Graphics.open_graph mySettings.windowsize;
-Graphics.auto_synchronize false;
+Graphics.auto_synchronize true;
 plotMesh mySettings myMesh2;
 print_endline "done.";;
 
@@ -113,8 +116,9 @@ print_endline "done.";;
 
 (*** final plot ********************************)
 Graphics.clear_graph();;
+Graphics.auto_synchronize true;
 print_string "Plot starts... ";
-setColorFromValues (LinearHSV ((1.0,1.0,1.0),(0.5,1.0,0.6))) (smoothenValues 8 triangleArea_value) myFullMesh;
+setColorFromValues (LinearHSV ((0.0,1.0,1.0),(0.5,1.0,0.6))) (smoothenValues 8 triangleArea_value) myFullMesh;
 plotMesh mySettings myFullMesh ;
 print_endline "done.";;
 
