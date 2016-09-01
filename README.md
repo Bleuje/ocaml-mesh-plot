@@ -6,6 +6,29 @@ It uses the standard OCaml graphics library (it is slow).
 
 Some examples are shown by runnning **main.ml**.
 
+## Quick example
+**quick_main.ml** is a quick a example of how a user could use the Plot3D module.
+``` ocaml
+#use "plot3d.ml";;
+open Plot3D;;
+
+let mySettings = Plot3D.defaultSettings;;
+let myMesh = loadOffMesh "examples/centaur1.off";;
+
+Graphics.open_graph mySettings.windowsize;
+changeCameraViewGUI 0.05 myMesh mySettings;
+plotMesh mySettings myMesh;;
+```
+Here the user loads the mesh `centaur1.off`, uses his keyboard to choose a camera angle from a point cloud.
+Then it plots the mesh with some default settings contained in the module.
+
+Pictures (camera view choice, then rendered result) :
+
+![image](https://raw.githubusercontent.com/Bleuje/ocaml-mesh-plot/master/pictures/quickmain.jpg)
+
+You should be able to obtain this by running `quick_main.ml` after downloading the master branch here.
+Keyboard shorcuts of `changeCameraViewGUI` are explained below.
+
 ## How to use the code
 - To use the plot functions in *3dplot.ml*, use **`#use "3dplot.ml"`** and then `open Plot3D`. To load functions to have some interesting (or not) textures, **`#use "scalarMeshFunctions.ml"`** and `open MeshFunctions`.
 
@@ -14,6 +37,8 @@ Some examples are shown by runnning **main.ml**.
 - **`writeMesh mesh filePath`** writes *mesh* in OFF format to *filePath*. It also writes the mesh colors if there are any.
 
 - **`plotMesh settings mesh`** plots *mesh* given its plot *settings*.
+
+- **`changeCameraViewGUI part mesh settings`** uses a point cloud generated with a proportion `part`of the mesh vertices to change the `cameraview` attribute of `settings`, in the current window (shortcuts explained below).
 
 - **mesh3dtools.ml** contains all the main mesh related things independant from plot, **mathtools.ml** contains some purely mathematical tools.
 
@@ -30,6 +55,8 @@ Some examples are shown by runnning **main.ml**.
 - meshes have two colorstyles (**`colorstyle`**) : if set to `Outside`, the mesh doesn't define its colors itself, if set to `VertexValue`, an array of float\*float\*float defines the color in rgb format for each vertex.
 
 - **`setColorArrayFromValues gstyle f mesh`** uses the *f* function `mesh -> values` that generates an array from the *mesh* to define a float value for each vertex or for each triangle of the *mesh*. It then uses the color gradient style *gstyle* (see part about color gradients below) to define the color array of the mesh.
+
+- **`setDefaultCameraView settings mesh`** modifies the plot settings (`settings`here) using the `mesh` : the camera angle is scaled from the mesh automatically.
 
 - Comments in the code contain additional information on how to use functions.
 
@@ -87,6 +114,28 @@ After writing the mesh with `writeOffMesh` it is possible to load and see it in 
 
 ![image](https://raw.githubusercontent.com/Bleuje/ocaml-mesh-plot/master/pictures/ocamlplotcomparison1.jpg)
 ![image](https://raw.githubusercontent.com/Bleuje/ocaml-mesh-plot/master/pictures/ocamlplotcomparison2.jpg)
+
+## Keyboard shortcuts
+
+In the camera view GUI, here are the keyboard shortcuts (designed to be convenient with AZERTY keyboard that have a numpad) :
+
+| Key | Description |
+| ------ | ----------- |
+| O,L,F | Finish, stop |
+| R | Go (back) to default camera view |
+| 5,Z   | Move forward |
+| 0,S | Move backward |
+| 4,6 | Look left and right respectively |
+| 8,2 | Look up and down respectively |
+| 1,3 | Move to left or right respectively |
+| 7,9 | Move up or down respectively |
+| G,H | Respectively increases or decreases the zoom factor | 
+| W | Increase movement speed |
+| X | Decrease movement speed |
+| C | Increase rotation speed |
+| V | Decrease rotation speed |
+| C | Increase point size |
+| N | Decrease point size |
 
 ## Known flaws
 - Slow (but I think that the fact it uses the standard library is nice, and the colors are nice and worth additional computation time).
