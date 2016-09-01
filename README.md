@@ -98,7 +98,7 @@ If we can draw colors when given values on vertices, let's see which values we c
 
 ![image](https://raw.githubusercontent.com/Bleuje/ocaml-mesh-plot/master/pictures/smoothcurvature.jpg)
 
-## Gradient styles
+## Color gradient styles
 There are many gradient styles, they are all color gradients between the vertices achieving minimum and maximum values of an array of scalar values.
 
 - `Hue`, `Saturation` and `Value` gradients have one parameter of the HSV color format changing while the others are fixed.
