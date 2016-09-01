@@ -61,7 +61,7 @@ Keyboard shorcuts of `changeCameraViewGUI` are explained below.
 - Comments in the code contain additional information on how to use functions.
 
 ## Mesh data
-Examples of rendered meshes presented here use the [Non-rigid world dataset here](http://tosca.cs.technion.ac.il/book/resources_data.html) :
+Examples of rendered meshes presented here use the [Non-rigid world dataset](http://tosca.cs.technion.ac.il/book/resources_data.html).
 
 ## Some tools
 The module **`Mesh3D`** (contained in `Plot3D`) has some functions to create meshes, modify meshes or put them together :
