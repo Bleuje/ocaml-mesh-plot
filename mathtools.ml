@@ -20,6 +20,9 @@ module Math3D = struct
         ((y1*.z2 -. z1*.y2,
         z1*.x2 -. x1*.z2,
         x1*.y2 -. y1*.x2) : vec3D)
+        
+    let lambda3 lambda ((x,y,z) : vec3D) =
+        (lambda*.x,lambda*.y,lambda*.z)
     
     let diff3 ((x1,y1,z1) : vec3D) ((x2,y2,z2) : vec3D) = ((x2-.x1,y2-.y1,z2-.z1) : vec3D)
     
@@ -27,10 +30,14 @@ module Math3D = struct
     
     let _pi = 4.*.atan(1.0)
     
+    let _float_inf = 10000000.0
+    
     let area a b c =
         let (ab,ac) = (diff3 a b,diff3 a c) in
             0.5*.norm3 (cross ab ac)
             
     let average3 (r1,g1,b1) (r2,g2,b2) (r3,g3,b3) = ((r1+.r2+.r3)/.3.,(g1+.g2+.g3)/.3.,(b1+.b2+.b3)/.3.)
+    
+    let _debug x = min (max x 0.0) 1.0
     
 end;;

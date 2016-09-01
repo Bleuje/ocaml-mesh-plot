@@ -50,6 +50,10 @@ module Plot3D = struct
     mutable printstep : int;
     mutable shaderRGB : float -> rgb_color -> int*int*int; }
     
+    type pointCloud =
+    { n : int;
+    cloud : vec3D array; }
+    
     type values =
     | VertexValues of float array
     | TriangleValues of float array
@@ -160,6 +164,15 @@ module Plot3D = struct
             done;
             Array.sort compare result;
             result
+            
+    let distanceSortPointCloud pointCloud ((x,y,z) : vec3D) =
+        let result = Array.make pointCloud.n (0.0,0) in
+            for i=0 to pointCloud.n - 1 do
+                let (xf,yf,zf) = pointCloud.cloud.(i) in
+                    result.(i) <- ( -. norm (xf -. x) (yf -. y) (zf -. z), i);
+            done;
+            Array.sort compare result;
+            result
     
     (* Explicit name, second argument will be lightDirection *)
     let set_color_from_normal ((vx1,vy1,vz1) : vec3D) ((vx2,vy2,vz2) : vec3D) ((cam_x,cam_y,cam_z) : vec3D) ((r_,g_,b_) : rgb_color) shader =
@@ -198,19 +211,131 @@ module Plot3D = struct
                         | Full -> Graphics.fill_poly poly_array
                         | Edge -> Graphics.draw_poly_line [|poly_array.(0);poly_array.(1);poly_array.(2);poly_array.(0);|]
     
+    (* Plots a face corresponding to a triangle of the mesh *)
+    let plotPoint ((xv,yv,zv) : vec3D) ((x,y,z) : vec3D) cameraParameters psize =
+        let point = (xv-.x,yv-.y,zv-.z) in
+        let (i,j) = (screenProjectionFast point cameraParameters) in
+            Graphics.fill_circle i j (max 1 (int_of_float(psize/.(norm3 point))))
+    
     (* Plots a mesh using its position,
     the camera parameters
     and the light direction *)
-    let plotMesh options mesh =
-        let cameraParameters = computeConstants options.cameraview
-        and dSort = distanceSort mesh options.cameraview.cameraposition in
+    let plotMesh settings mesh =
+        let cameraParameters = computeConstants settings.cameraview
+        and dSort = distanceSort mesh settings.cameraview.cameraposition in
             for i=0 to mesh.nTria - 1 do
                 let ind = snd (dSort.(i)) in
-                    plotTriangle mesh ind options.cameraview.cameraposition cameraParameters options.lightdirection options.style options.colorchoice options.shaderRGB;
-                    if ((i mod options.printstep) = 1) then Graphics.synchronize();
+                    plotTriangle mesh ind settings.cameraview.cameraposition cameraParameters settings.lightdirection settings.style settings.colorchoice settings.shaderRGB;
+                    if ((i mod settings.printstep) = 1) then Graphics.synchronize();
             done;
             Graphics.synchronize()
     
+    (* chooses random points to create a point cloud from a mesh,
+    part is the part of points that will be selected *)
+    let createCloud part mesh =
+        let nres = int_of_float(_debug(part)*.float_of_int(mesh.nVert)) in
+            let cloud = Array.make nres (0.0,0.0,0.0)
+            and t = Array.copy mesh.positions in
+                for i = mesh.nVert - 1 downto 0 do
+                    let k = Random.int (i+1) in
+                        let aux = t.(k) in
+                            t.(k) <- t.(i);
+                            t.(i) <- aux;
+                done;
+                for i = 0 to nres - 1 do
+                    cloud.(i) <- t.(i);
+                done;
+                { n = nres; cloud = cloud; }
+    
+    (* plots the point cloud *)
+    let plotPointCould settings (pointCloud : pointCloud) psize=
+    Graphics.clear_graph();
+    Graphics.set_color Graphics.black;
+        let cameraParameters = computeConstants settings.cameraview
+        and dSort = distanceSortPointCloud pointCloud settings.cameraview.cameraposition in
+            for i=0 to pointCloud.n - 1 do
+                let ind = snd (dSort.(i)) in
+                    plotPoint pointCloud.cloud.(ind) settings.cameraview.cameraposition cameraParameters psize;
+            done;
+            Graphics.synchronize()
+    
+    (* sets a default camera view to settings from mesh *)
+    let setDefaultCameraView settings mesh =
+            let mins = Array.make 3 _float_inf
+            and maxs = Array.make 3 (-._float_inf) in
+                for i = 0 to mesh.nVert - 1 do
+                    let (x,y,z) = mesh.positions.(i) in
+                        mins.(0) <- min mins.(0) x;
+                        mins.(1) <- min mins.(1) y;
+                        mins.(2) <- min mins.(2) z;
+                        maxs.(0) <- max maxs.(0) x;
+                        maxs.(1) <- max maxs.(1) y;
+                        maxs.(2) <- max maxs.(2) z;
+                done;
+                let cameraPosition =    (((maxs.(0)+.mins.(0))/.2.,
+                                        (maxs.(1)+.mins.(1))/.2. -. 3.*.(maxs.(1)-.mins.(1))/.2.,
+                                        (maxs.(2)+.mins.(2))/.2.) : vec3D) in
+                    let myCameraView =
+                    { phi = _pi/.2.;
+                    theta = _pi/.2.;
+                    zoomfactor = 15.;
+                    cameraposition = cameraPosition; } in
+                        settings.cameraview <- myCameraView;
+                        max (max (maxs.(0)-.mins.(0)) (maxs.(1)-.mins.(1))) (maxs.(2)-.mins.(2))
+                
+    (* graphical user interface to change the camera view *)
+    let changeCameraViewGUI part mesh settings =
+    Graphics.auto_synchronize false;
+        let speed = ref ((setDefaultCameraView settings mesh)/.10.)
+        and psize = ref 500.
+        and astep = ref 0.05 in
+        let myCloud = createCloud (_debug(part)) mesh in
+            plotPointCould settings myCloud (!psize);
+            let continue = ref true in
+            while (!continue) do (*
+                let status = Graphics.wait_next_event [Graphics.Key_pressed] in
+                    if (status.keypressed) then begin *)
+                    let c = Graphics.read_key() in
+                        if (c='g' || c='+') then settings.cameraview.zoomfactor <- settings.cameraview.zoomfactor*.1.1
+                        else begin if (c='h' || c='-') then settings.cameraview.zoomfactor <- settings.cameraview.zoomfactor/.1.1
+                        else begin if (c='o' || c='l' || c='f') then continue := false
+                        else begin if (c='w') then speed := !speed*.2.
+                        else begin if (c='x') then speed := !speed/.2.
+                        else begin if (c='b') then psize := !psize*.1.2
+                        else begin if (c='n') then psize := !psize/.1.2
+                        else begin if (c='c') then astep := !astep*.1.2
+                        else begin if (c='v') then astep := !astep/.1.2
+                        else begin if (c='8') then settings.cameraview.theta <- settings.cameraview.theta -. !astep
+                        else begin if (c='2') then settings.cameraview.theta <- settings.cameraview.theta +. !astep
+                        else begin if (c='4') then settings.cameraview.phi <- settings.cameraview.phi +. !astep
+                        else begin if (c='6') then settings.cameraview.phi <- settings.cameraview.phi -. !astep
+                        else begin if (c='5' || c='z') then let (theta,phi) = (settings.cameraview.theta,settings.cameraview.phi) in
+                            settings.cameraview.cameraposition <-
+                            add3 settings.cameraview.cameraposition (lambda3 (!speed) (sin(theta)*.cos(phi),sin(theta)*.sin(phi),cos(theta)))
+                        else begin if (c='0' || c='s') then let (theta,phi) = (settings.cameraview.theta,settings.cameraview.phi) in
+                            settings.cameraview.cameraposition <-
+                            add3 settings.cameraview.cameraposition (lambda3 (-.(!speed)) (sin(theta)*.cos(phi),sin(theta)*.sin(phi),cos(theta)))
+                        else begin if (c='1' || c='q') then let (theta,phi) = (settings.cameraview.theta,settings.cameraview.phi +. _pi/.2.) in
+                            settings.cameraview.cameraposition <-
+                            add3 settings.cameraview.cameraposition (lambda3 (!speed) (sin(theta)*.cos(phi),sin(theta)*.sin(phi),cos(theta)))
+                        else begin if (c='3' || c='d') then let (theta,phi) = (settings.cameraview.theta,settings.cameraview.phi -. _pi/.2.) in
+                            settings.cameraview.cameraposition <-
+                            add3 settings.cameraview.cameraposition (lambda3 (!speed) (sin(theta)*.cos(phi),sin(theta)*.sin(phi),cos(theta)))
+                        else begin if (c='7') then let (theta,phi) = (settings.cameraview.theta -. _pi/.2.,settings.cameraview.phi) in
+                            settings.cameraview.cameraposition <-
+                            add3 settings.cameraview.cameraposition (lambda3 (!speed) (sin(theta)*.cos(phi),sin(theta)*.sin(phi),cos(theta)))
+                        else begin if (c='9') then let (theta,phi) = (settings.cameraview.theta +. _pi/.2.,settings.cameraview.phi) in
+                            settings.cameraview.cameraposition <-
+                            add3 settings.cameraview.cameraposition (lambda3 (!speed) (sin(theta)*.cos(phi),sin(theta)*.sin(phi),cos(theta)))
+                        else begin if (c='r') then let _ = setDefaultCameraView settings mesh in ()
+                        end end end end end end
+                        end end end end end end end end end;
+                        end end end end;
+                        plotPointCould settings myCloud (!psize); 
+            done;
+            Graphics.clear_graph()
+    
+    (* perdiodical continuous function with values between 0.  and 1. *)
     let triangle_cycle f = let i = int_of_float(f) in
         if (i mod 2 = 0) then f -. float_of_int(i)
         else 1.0 -. (f -. float_of_int(i))
@@ -272,8 +397,7 @@ module Plot3D = struct
                 | Personal f -> f current
         done;
         match varray_ with
-        | VertexValues a -> mesh.colorstyle <- VertexColor result
-        | TriangleValues a -> mesh.colorstyle <- TriangleColor result
-
+        | VertexValues _ -> mesh.colorstyle <- VertexColor result
+        | TriangleValues _ -> mesh.colorstyle <- TriangleColor result
 
 end;;

@@ -28,7 +28,7 @@ let myColorStyle = Outside;;
 
 let myShaderColorFunction sc ((r,g,b) : rgb_color) =
     let darkness = 0.5
-    and contrast = 1.8 in
+    and contrast = 2.8 in
         let aux x =
         int_of_float(min (max ((1.0 -. darkness)*.255.*.((1.0+.contrast*.darkness*.sc)*.x) +. darkness*.100.) 0.) 255.) in
             (aux r,aux g,aux b);;
@@ -58,7 +58,6 @@ mySettings2.colorchoice <- SpaceColor myField;
 mySettings2.windowsize <- "1000x1000";
 mySettings2.cameraview.theta <- 1.0;
 mySettings2.cameraview.zoomfactor <- 10.0;
-mySettings2.cameraview.cameraposition <- (-.20.,-.60.,8.0);
 mySettings2.style <- Full;;
 
 
@@ -104,10 +103,13 @@ deformedMesh (movedMesh myCat (25.0,50.0,0.0)) g];;
 
 
 (*** plot 1 ********************************)
+let _ = setDefaultCameraView mySettings2 myMesh2;;
+
 print_string "Plot starts... ";
-Graphics.open_graph mySettings.windowsize;
+Graphics.open_graph mySettings2.windowsize;
 Graphics.auto_synchronize true;
-plotMesh mySettings myMesh2;
+changeCameraViewGUI 0.05 myMesh2 mySettings2;
+plotMesh mySettings2 myMesh2;
 print_endline "done.";;
 
 (****************************************************)
@@ -115,10 +117,13 @@ print_endline "done.";;
 (* Demo with concatenation of different meshes *) 
 
 (*** final plot ********************************)
-Graphics.clear_graph();;
+let _ = setDefaultCameraView mySettings myFullMesh;;
+
+Graphics.clear_graph();
 Graphics.auto_synchronize true;
 print_string "Plot starts... ";
 setColorFromValues (LinearHSV ((0.0,1.0,1.0),(0.5,1.0,0.6))) (smoothenValues 8 triangleArea_value) myFullMesh;
+changeCameraViewGUI 0.02 myFullMesh mySettings;
 plotMesh mySettings myFullMesh ;
 print_endline "done.";;
 
@@ -129,6 +134,6 @@ print_endline "Finished writing.";;
 
 
 
-(******* Just to keep the graphics window open ******)
+(******* Just to keep the graphics window opened ****)
 let last = Scanf.scanf "%d " (fun x->x);;
 (****************************************************)
