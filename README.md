@@ -38,27 +38,69 @@ Keyboard shorcuts of `changeCameraViewGUI` are explained below.
 
 - **`plotMesh settings mesh`** plots *mesh* given its plot *settings*.
 
-- **`changeCameraViewGUI part mesh settings`** uses a point cloud generated with a proportion `part`of the mesh vertices to change the `cameraview` attribute of `settings`, in the current window (shortcuts explained below).
+- **`changeCameraViewGUI part mesh settings`** uses a point cloud generated with a proportion `part`of the mesh vertices to change the `cameraview` attribute of `settings`, in the current window (shortcuts explained [below](https://github.com/Bleuje/ocaml-mesh-plot#keyboard-shortcuts)).
 
 - **mesh3dtools.ml** contains all the main mesh related things independant from plot, **mathtools.ml** contains some purely mathematical tools.
 
 ### More detailed information :
 
-- I advice to read the types defined at the top of *mesh3dtools.ml* and *3dplot.ml* to understand how to use the code better, but I'll try to explain a little here without the definitions of the new types.
+- The **`mesh`**structure consists in the following attributes : `nVert`: number of vertices, `nTria` : number of triangles, `positions` : positions.(i) is an array representing the i-th vertex position (cartesian coordinates),  `triangles` : triangles.(i) is an array of size 3 that indicates the indices of vertices from the triangle (order gives orientation), `colorstyle` : see below for further explaination.
 
-- the **`mesh`**structure consists in the following attributes : `.nVert`: number of vertices, `.nTria` : number of triangles, `.positions` : positions.(i) is an array representing the i-th vertex position (cartesian coordinates),  `.triangles` : triangles.(i) is an array of size 3 that indicates the indices of vertices from the triangle (order gives orientation), `.colorstyle` : see below for further explaination.
+``` ocaml
+type rgb_color = float*float*float (* color in RGB format with valeus between 0.0 and 1.0 *)
+type hsv_color = float*float*float  (* same with HSV format *)
+type vec3D = float*float*float (* vector in 3D space *)
 
-- The **`plotSettings`** structure consist in many attributes : `.colorchoice` : color if not specified by mesh (RGB or HSV), `.style` : drawing style (Full or Edge), `.windowsize` : window size, `.lightdirection` : light direction, `.cameraview` : camera settings, `.printstep` : the number of printed triangles per flush, `.shaderRGB` : the shader function (explained below).
+type mesh =
+{ nVert : int;
+nTria : int;
+positions : vec3D array;
+triangles : int array array;
+mutable colorstyle : colorStyle; }
 
-- An instance of the structure **`cameraView`** can define the camera view. One can choose the position of the camera with `.cameraposition`. The camera has 3 more parameters : angles `.phi` and `.theta` (spherical coordinates), and a *"zoom" factor* `.zoomfactor`. `cameraView` instances are used in the structure `plotSettings`.
+type colorStyle =
+| Outside
+| VertexColor of rgb_color array
+| TriangleColor of rgb_color array
+```
 
-- meshes have two colorstyles (**`colorstyle`**) : if set to `Outside`, the mesh doesn't define its colors itself, if set to `VertexValue`, an array of float\*float\*float defines the color in rgb format for each vertex.
+- The **`plotSettings`** structure consist in many attributes : `colorchoice` : color if not specified by mesh (RGB or HSV), `style` : drawing style (Full or Edge), `windowsize` : window size, `lightdirection` : light direction, `cameraview` : camera settings, `printstep` : the number of printed triangles per flush, `shaderRGB` : the shader function (explained below).
 
-- **`setColorArrayFromValues gstyle f mesh`** uses the *f* function `mesh -> values` that generates an array from the *mesh* to define a float value for each vertex or for each triangle of the *mesh*. It then uses the color gradient style *gstyle* (see part about color gradients below) to define the color array of the mesh.
+``` ocaml
+type plotStyle = Full | Edge
+
+type plotSettings =
+    { mutable cameraview : cameraView;
+    mutable colorchoice : colorChoice;
+    mutable style : plotStyle;
+    mutable lightdirection : vec3D;
+    mutable windowsize : string;
+    mutable printstep : int;
+    mutable shaderRGB : float -> rgb_color -> int*int*int; }
+```
+
+- An instance of the structure **`cameraView`** can define the camera view. One can choose the position of the camera with `cameraposition`. The camera has 3 more parameters : angles `phi` and `theta` (spherical coordinates), and a *"zoom" factor* `zoomfactor`. `cameraView` instances are used in the structure `plotSettings`.
+
+``` ocaml
+type cameraView =
+    { mutable phi : float;
+    mutable theta : float;
+    mutable zoomfactor : float;
+    mutable cameraposition : vec3D; }
+```
+- meshes have three colorstyles (**`colorstyle`**) : if set to `Outside`, the mesh doesn't define its colors itself, if set to `VertexValue` (respectively to `TriangleColor`), an array of float\*float\*float defines the color in rgb format for each vertex (respectively for each triangle).
+
+- **`setColorArrayFromValues gstyle f mesh`** uses the *f* function `mesh -> values` that generates an array from the *mesh* to define a float value for each vertex or for each triangle of the *mesh*. It then uses the color gradient style *gstyle* (see part about color gradients [below](https://github.com/Bleuje/ocaml-mesh-plot/blob/master/README.md#color-gradient-styles)) to define the color array of the mesh.
+
+``` ocaml
+type values =
+    | VertexValues of float array
+    | TriangleValues of float array
+```
 
 - **`setDefaultCameraView settings mesh`** modifies the plot settings (`settings`here) using the `mesh` : the camera angle is scaled from the mesh automatically.
 
-- Comments in the code contain additional information on how to use functions.
+- Comments in the code may contain additional information about how to use functions.
 
 ## Mesh data
 Examples of rendered meshes presented here use the [Non-rigid world dataset](http://tosca.cs.technion.ac.il/book/resources_data.html).
@@ -77,7 +119,7 @@ on a rectangle domain with borders parallel to x or y axis (boundaries are given
 ![image](https://raw.githubusercontent.com/Bleuje/ocaml-mesh-plot/master/pictures/catfamily2.jpg)
 
 ## Shaders
-The plot settings have an attribute `.shaderRGB`. It contains a function `shader sc c` that takes as arguments the scalar product (between the normalized light direction and face normal) sc, and the color sc (triplet of floats between 0.0 and 1.0 in RGB format). It has to return a triplet of integers beween 0 and 255 representing the color in RGB format.
+The plot settings have an attribute `shaderRGB`. It contains a function `shader sc c` that takes as arguments the scalar product (between the normalized light direction and face normal) sc, and the color sc (triplet of floats between 0.0 and 1.0 in RGB format). It has to return a triplet of integers beween 0 and 255 representing the color in RGB format.
 
 It is therefore easy for the user to define its own shader function.
 
@@ -109,6 +151,23 @@ There are many gradient styles, they are all color gradients between the vertice
 
 - `Personal f` is a gradient that uses the `float -> rgb_color` f function to define the gradient.
 
+``` ocaml
+    type gradientStyle =
+    | Hue of float*float
+    | Value of float*float
+    | Saturation of float*float
+    | HueCycles of int*float*float
+    | LinearRGB of rgb_color*rgb_color
+    | LinearHSV of hsv_color*hsv_color
+    | LinearCycleRGB of int*rgb_color*rgb_color
+    | LinearCycleHSV of int*hsv_color*hsv_color
+    | QuadraticRGB of rgb_color*rgb_color
+    | QuadraticHSV of hsv_color*hsv_color
+    | QuadraticCycleRGB of int*rgb_color*rgb_color
+    | QuadraticCycleHSV of int*hsv_color*hsv_color
+    | Personal of (float -> rgb_color)
+```
+
 ## Opening results with MeshLab
 After writing the mesh with `writeOffMesh` it is possible to load and see it in MeshLab as shown in the picture below (OCaml plot on the left, MeshLab plot on the right) :
 
@@ -134,7 +193,7 @@ In the camera view GUI, here are the keyboard shortcuts (designed to be convenie
 | X | Decrease movement speed |
 | C | Increase rotation speed |
 | V | Decrease rotation speed |
-| C | Increase point size |
+| B | Increase point size |
 | N | Decrease point size |
 
 ## Known flaws
