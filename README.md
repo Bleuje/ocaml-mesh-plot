@@ -1,4 +1,6 @@
-![image](https://raw.githubusercontent.com/Bleuje/ocaml-mesh-plot/master/pictures/header.jpg)
+<p align="center">
+  <img src="https://raw.githubusercontent.com/Bleuje/ocaml-mesh-plot/master/pictures/header.jpg">
+</p>
 
 # Basic mesh plot with Objective Caml
 So far, this is mainly a module (`Plot3D`) to show meshes from OFF format (uncolored triangle-based with float values as vertices positions), and R^2 -> R functions on a rectangular domain.
@@ -23,8 +25,9 @@ Here the user loads the mesh `centaur1.off`, uses his keyboard to choose a camer
 Then it plots the mesh with some default settings contained in the module.
 
 Pictures (camera view choice, then rendered result) :
-
-![image](https://raw.githubusercontent.com/Bleuje/ocaml-mesh-plot/master/pictures/quickmain.jpg)
+<p align="center">
+  <img src="https://raw.githubusercontent.com/Bleuje/ocaml-mesh-plot/master/pictures/quickmain.jpg">
+</p>
 
 You should be able to obtain this by running `quick_main.ml` after downloading the master branch here.
 Keyboard shorcuts of `changeCameraViewGUI` are explained below.
@@ -116,7 +119,9 @@ on a rectangle domain with borders parallel to x or y axis (boundaries are given
 
 (Cats + deformed cat + paraboloid) concatenation :
 
-![image](https://raw.githubusercontent.com/Bleuje/ocaml-mesh-plot/master/pictures/catfamily2.jpg)
+<p align="center">
+  <img src="https://raw.githubusercontent.com/Bleuje/ocaml-mesh-plot/master/pictures/catfamily2.jpg">
+</p>
 
 ## Shaders
 The plot settings have an attribute `shaderRGB`. It contains a function `shader sc c` that takes as arguments the scalar product (between the normalized light direction and face normal) sc, and the color sc (triplet of floats between 0.0 and 1.0 in RGB format). It has to return a triplet of integers beween 0 and 255 representing the color in RGB format.
@@ -125,7 +130,9 @@ It is therefore easy for the user to define its own shader function.
 
 Here is a picture that shows the difference without/with shader :
 
-![image](https://raw.githubusercontent.com/Bleuje/ocaml-mesh-plot/master/pictures/shadertest.jpg)
+<p align="center">
+  <img src="https://raw.githubusercontent.com/Bleuje/ocaml-mesh-plot/master/pictures/shadertest.jpg">
+</p>
 
 ## Scalar functions
 If we can draw colors when given values on vertices, let's see which values we can give. The module **`MeshFunctions`** from *meshScalarFunctions.ml* contains many examples of functions (they end with *_value*) that can be applied to meshes to can scalar values on the whole mesh. They either return `VertexValues` of a float array (values for each vertex), or `PolygonValues` of a float array (values for each triangle). `setColorArrayFromValues gstyle f mesh` will work on both cases.
@@ -134,11 +141,15 @@ If we can draw colors when given values on vertices, let's see which values we c
 - Some other functions perform a BFS or DFS on the mesh, you can put the index of the starting vertex as argument (without it takes a random start). Those functions either return the time when the vertex was visited, or the depth from start, on each vertex. Therefore the function names are `bfsCount_value`, `dfsCount_Value`, `bfsDepth_value`, `dfsDepth_value`.
 - `discreteGaussianCurvature_value abs_max` computes the discrete gaussian curvature. I used 2*PI - (sum of the angles around the vertex) as formula. I think it should actually use the area around. So far, there are some unexpected high and low values, and it's possible to get rid of them using the `abs_max` parameter (for example set to 0.05). Here's a picture with a gradient applied to the discrete gaussian curvature :
 
-![image](https://raw.githubusercontent.com/Bleuje/ocaml-mesh-plot/master/pictures/discretegaussiancurvature.jpg)
+<p align="center">
+  <img src="https://raw.githubusercontent.com/Bleuje/ocaml-mesh-plot/master/pictures/discretegaussiancurvature.jpg">
+</p>
 
 - `smoothenValues max_iter f` adapts the function f (`mesh -> values`) by computing `max_iter` iterations of mean values with neighbors in the mesh graph. `smoothenValues max_iter f` will have type `mesh -> values`. Example of use : `setColorFromValues (LinearCycleHSV (1,(1.0,1.0,1.0),(0.5,1.0,0.6))) (smoothenValues 50 (discreteGaussianCurvature_value 0.09)) myMesh2`, result picture below :
 
-![image](https://raw.githubusercontent.com/Bleuje/ocaml-mesh-plot/master/pictures/smoothcurvature.jpg)
+<p align="center">
+  <img src="https://raw.githubusercontent.com/Bleuje/ocaml-mesh-plot/master/pictures/smoothcurvature.jpg">
+</p>
 
 ## Color gradient styles
 There are many gradient styles, they are all color gradients between the vertices achieving minimum and maximum values of an array of scalar values.
