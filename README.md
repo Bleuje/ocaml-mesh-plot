@@ -1,3 +1,5 @@
+Something just for fun (or an execise) I made during some vacations, I used the word "shader" before I knew what it usually means.
+
 <p align="center">
   <img src="https://raw.githubusercontent.com/Bleuje/ocaml-mesh-plot/master/pictures/header.jpg">
 </p>
